@@ -18,8 +18,16 @@ module("Outgoing Tests", {
     setup: function() {
         jp = new MockJoinPoint();
         jp.args[0] = new MockSubscriptionImpl('/FX/EURUSD');
+
+        unfilteredJP = new MockJoinPoint();
+        unfilteredJP.args[0] = new MockSubscriptionImpl('/FX/USDCHF');
+
         dataJp = new MockJoinPoint();
         dataJp.target = new MockRecordType1Event('/FX/EURUSD');
+
+
+        unfilteredDataJp = new MockJoinPoint();
+        unfilteredDataJp.target = new MockRecordType1Event('/FX/USDCHF');
     }
 })
 
@@ -49,9 +57,6 @@ test( "matchers stop subscriptions when activated", function() {
 });
 
 test( "matchers only stop subscriptions they match", function() {
-    var unfilteredJP = new MockJoinPoint();
-    unfilteredJP.args[0] = new MockSubscriptionImpl('/FX/USDCHF');
-
     var oh = new OutgoingHandler(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
@@ -107,7 +112,7 @@ test( "matchers let data through by default", function() {
     ok( dataJp.proceed.called );
 });
 
-test( "matchers stop subscriptions when activated", function() {
+test( "matchers stop data when activated", function() {
     var oh = new OutgoingHandler(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
@@ -117,10 +122,7 @@ test( "matchers stop subscriptions when activated", function() {
     ok( !dataJp.proceed.called );
 });
 
-test( "matchers only stop subscriptions they match", function() {
-    var unfilteredJP = new MockJoinPoint();
-    unfilteredJP.target = new MockRecordType1Event('/FX/USDCHF');
-
+test( "matchers only stop data they match", function() {
     var oh = new OutgoingHandler(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
@@ -129,7 +131,48 @@ test( "matchers only stop subscriptions they match", function() {
     matcher.inFilter(true);
 
     oh.onData(dataJp);
-    oh.onData(unfilteredJP);
+    oh.onData(unfilteredDataJp);
     ok( !dataJp.proceed.called );
-    ok( unfilteredJP.proceed.called );
+    ok( unfilteredDataJp.proceed.called );
+});
+
+//INTERCEPTED
+
+test( "stopped data is placed in interception array", function() {
+    var oh = new OutgoingHandler(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.inFilter(true);
+
+    oh.onData(dataJp);
+    equal(1, oh.interceptedData().length);
+});
+
+
+test( "unstopped data is not placed in interception array", function() {
+    var oh = new OutgoingHandler(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.inFilter(true);
+
+    oh.onData(dataJp);
+    oh.onData(unfilteredDataJp);
+    equal(1, oh.interceptedData().length);
+});
+
+test( "stopped data can be forwarded on", function() {
+    var oh = new OutgoingHandler(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.inFilter(true);
+
+    oh.onData(dataJp);
+
+    ok( !dataJp.proceed.called );
+    equal(1, oh.interceptedData().length);
+
+    oh.forwardInterceptedData(oh, oh.interceptedData()[0]);
+
+    ok( dataJp.proceed.called );
+    equal(0, oh.interceptedData().length);
 });

@@ -42,7 +42,8 @@ function createCSS() {
         "   right: 30px;" +
         "   top: 50px;" +
         "   border: 1px solid white;" +
-        "   z-index: 10000" +
+        "   z-index: 10000;" +
+        "   overflow-y: scroll;" +
         "}" +
         "" +
         ".subscriptions {" +
@@ -63,11 +64,17 @@ function createCSS() {
         "}" +
         "" +
         ".matcher-matcher {" +
-        "   width: 350px;" +
+        "   width: 300px;" +
         "   display: inline-block;" +
         "}" +
         "" +
         ".matchers {" +
+        "   height: 100px;" +
+        "   color: rgb(41,41,41);" +
+        "   background: -webkit-linear-gradient(top, #f5f5f5 0%, #b7b6b4 100%);" +
+        "}" +
+        "" +
+        ".intercepted {" +
         "   height: 100px;" +
         "   color: rgb(41,41,41);" +
         "   background: -webkit-linear-gradient(top, #f5f5f5 0%, #b7b6b4 100%);" +
@@ -93,6 +100,11 @@ function createDom() {
         "</div>" +
         "<input data-bind='value: newMatcherText' />" +
         "<button data-bind='click: addNewMatcher'>Add</button>" +
+        "<h1>Intercepted Messages</h1>" +
+        "<div class='intercepted' data-bind='foreach: interceptedData'>" +
+        "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.forwardInterceptedData($parent, data, event) }'>Forward</button>" +
+        "   <div class='matcher-matcher' data-bind='text: target.getSubject()'></div>" +
+        "</div>" +
         "</div>" +
         "";
     document.body.appendChild(damDiv);

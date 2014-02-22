@@ -3,6 +3,7 @@ var OutgoingHandler = function(ko) {
     this.newMatcherText = this.ko.observable("/FX/EURUSD/SPOT/EUR/500");
     this.matchers = this.ko.observableArray();
     this.subscriptionsCalled = this.ko.observableArray();
+    this.interceptedData = this.ko.observableArray();
     var self = this;
 }
 
@@ -42,9 +43,17 @@ OutgoingHandler.prototype.onData = function(joinPoint) {
     var subject = joinPoint.target.getSubject();
     var filtered = false;
     this.matchers().forEach(function(matcher){
-        if (matcher.inFilter() && subject === matcher.matcher) filtered = true;
-    });
+        if (matcher.inFilter() && subject === matcher.matcher) {
+            filtered = true;
+            this.interceptedData.push(joinPoint);
+        }
+    }.bind(this));
     if (!filtered) {
         return joinPoint.proceed();
     }
+}
+
+OutgoingHandler.prototype.forwardInterceptedData = function(self, data) {
+    data.proceed();
+    self.interceptedData.remove(data);
 }
