@@ -1,6 +1,7 @@
 function MockJoinPoint() {
     this.args = [];
     this.proceed = sinon.stub().returns('test');
+    this.target = null;
 }
 
 function MockSubscriptionImpl(subject) {
@@ -17,7 +18,8 @@ module("Outgoing Tests", {
     setup: function() {
         jp = new MockJoinPoint();
         jp.args[0] = new MockSubscriptionImpl('/FX/EURUSD');
-        mockRecordType1Event = new MockRecordType1Event('/FX/EURUSD');
+        dataJp = new MockJoinPoint();
+        dataJp.target = new MockRecordType1Event('/FX/EURUSD');
     }
 })
 
@@ -91,8 +93,8 @@ test( "Copy subscription to matcher", function() {
 
 test( "lets data through by default", function() {
     var oh = new OutgoingHandler(ko);
-    var returnedData = oh.onData(jp, mockRecordType1Event);
-    ok( jp.proceed.called);
+    var returnedData = oh.onData(dataJp);
+    ok( dataJp.proceed.called);
     equal("test", returnedData);
 });
 
@@ -101,8 +103,8 @@ test( "matchers let data through by default", function() {
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
 
-    oh.onData(jp, mockRecordType1Event);
-    ok( jp.proceed.called );
+    oh.onData(dataJp);
+    ok( dataJp.proceed.called );
 });
 
 test( "matchers stop subscriptions when activated", function() {
@@ -111,14 +113,13 @@ test( "matchers stop subscriptions when activated", function() {
     var matcher = oh.addNewMatcher();
     matcher.inFilter(true);
 
-    oh.onData(jp, mockRecordType1Event);
-    ok( !jp.proceed.called );
+    oh.onData(dataJp);
+    ok( !dataJp.proceed.called );
 });
 
 test( "matchers only stop subscriptions they match", function() {
     var unfilteredJP = new MockJoinPoint();
-    unfilteredJP.args[0] = new MockSubscriptionImpl('/FX/USDCHF');
-    var unfilteredMockRecordType1Event = new MockRecordType1Event('/FX/USDCHF');
+    unfilteredJP.target = new MockRecordType1Event('/FX/USDCHF');
 
     var oh = new OutgoingHandler(ko);
     oh.newMatcherText('/FX/EURUSD');
@@ -127,8 +128,8 @@ test( "matchers only stop subscriptions they match", function() {
     var matcher2 = oh.addNewMatcher();
     matcher.inFilter(true);
 
-    oh.onData(jp, mockRecordType1Event);
-    oh.onData(unfilteredJP, unfilteredMockRecordType1Event);
-    ok( !jp.proceed.called );
+    oh.onData(dataJp);
+    oh.onData(unfilteredJP);
+    ok( !dataJp.proceed.called );
     ok( unfilteredJP.proceed.called );
 });

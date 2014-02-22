@@ -38,8 +38,8 @@ OutgoingHandler.prototype.onSubscribe = function(joinPoint) {
     }
 }
 
-OutgoingHandler.prototype.onData = function(joinPoint, mockRecordEvent) {
-    var subject = mockRecordEvent.getSubject();
+OutgoingHandler.prototype.onData = function(joinPoint) {
+    var subject = joinPoint.target.getSubject();
     var filtered = false;
     this.matchers().forEach(function(matcher){
         if (matcher.inFilter() && subject === matcher.matcher) filtered = true;

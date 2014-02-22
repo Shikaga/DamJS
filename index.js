@@ -12,7 +12,7 @@ require(['https://raw.github.com/cujojs/meld/master/meld.js',
     meld.around(
         caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
             console.log('MELD INCOMING', this.getSubject(), this.getFields());
-            outgoingHandler.onData(joinPoint, this);
+            outgoingHandler.onData(joinPoint);
         }
     )
 
