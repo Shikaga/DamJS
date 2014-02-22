@@ -21,13 +21,19 @@ function createCSS() {
         ".dam-js {" +
         "   color: white; " +
         "   background-color: black;" +
-        "   width: 200px;" +
+        "   width: 400px;" +
         "   position: fixed;" +
-        "   height: 200px;" +
+        "   height: 400px;" +
         "   right: 30px;" +
         "   top: 50px;" +
         "   border: 1px solid white;" +
         "   z-index: 10000" +
+        "}" +
+        "" +
+        ".subscriptions {" +
+        "height: 50px;" +
+        "overflow-x: hidden;" +
+        "overflow-y: scroll;" +
         "}" +
         "";
     document.head.appendChild(damCSS);
@@ -37,7 +43,11 @@ function createDom() {
     var damDiv = document.createElement("div");
     damDiv.innerHTML = "" +
         "<div class='dam-js'>" +
-        "<div data-bind='text: helloText'></div>" +
+        "<h1></h1>" +
+        "<div class='subscriptions' data-bind='foreach: subscriptionsCalled'>" +
+        "   <div data-bind='text: args[0].getSubject()'></div>" +
+        "   <button data-bind='click: function(data, event) { $parent.copySubscriptionToMatcher($parent, data, event) }'>Copy</button>" +
+        "</div>" +
         "<div data-bind='foreach: matchers'>" +
         "   <div data-bind='text: matcher'></div>" +
         "   <input type='checkbox' data-bind='checked: filter'>" +
