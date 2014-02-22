@@ -13,7 +13,8 @@ OutgoingHandler.prototype.addNewMatcher = function() {
 OutgoingHandler.prototype._addMatcher = function(subscription) {
     var matcher = {
         matcher: subscription,
-        filter: this.ko.observable(false)
+        outFilter: this.ko.observable(false),
+        inFilter: this.ko.observable(false)
     }
     this.matchers.push(matcher);
     return matcher
@@ -30,7 +31,18 @@ OutgoingHandler.prototype.onSubscribe = function(joinPoint) {
     var subject = joinPoint.args[0].getSubject();
     var filtered = false;
     this.matchers().forEach(function(matcher){
-        if (matcher.filter() && subject === matcher.matcher) filtered = true;
+        if (matcher.outFilter() && subject === matcher.matcher) filtered = true;
+    });
+    if (!filtered) {
+        return joinPoint.proceed();
+    }
+}
+
+OutgoingHandler.prototype.onData = function(joinPoint, mockRecordEvent) {
+    var subject = mockRecordEvent.getSubject();
+    var filtered = false;
+    this.matchers().forEach(function(matcher){
+        if (matcher.inFilter() && subject === matcher.matcher) filtered = true;
     });
     if (!filtered) {
         return joinPoint.proceed();
