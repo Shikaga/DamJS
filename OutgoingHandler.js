@@ -45,14 +45,13 @@ OutgoingHandler.prototype.onData = function(joinPoint) {
     this.matchers().forEach(function(matcher){
         if (matcher.inFilter() && subject === matcher.matcher) {
             filtered = true;
-            joinPoint.damFields = ko.computed(function() {
-                var fieldArray = [];
-                var fieldsMap = joinPoint.target.getFields();
-                for (var key in fieldsMap) {
-                    fieldArray.push({key: key, value: fieldsMap[key]});
-                }
-                return fieldArray;
-            });
+
+            var fieldArray = [];
+            var fieldsMap = joinPoint.target.getFields();
+            for (var key in fieldsMap) {
+                fieldArray.push({key: this.ko.observable(key), value: this.ko.observable(fieldsMap[key])});
+            }
+            joinPoint.damFields = this.ko.observableArray(fieldArray);
             this.interceptedData.push(joinPoint);
         }
     }.bind(this));
@@ -62,6 +61,9 @@ OutgoingHandler.prototype.onData = function(joinPoint) {
 }
 
 OutgoingHandler.prototype.forwardInterceptedData = function(self, data) {
+    data.damFields().forEach(function(field) {
+        data.target._fields[field.key()] = field.value();
+    })
     data.proceed();
     self.interceptedData.remove(data);
 }

@@ -12,7 +12,8 @@ function MockSubscriptionImpl(subject) {
 function MockRecordType1Event(subject) {
     this.subject = subject;
     this.getSubject = sinon.stub().returns(this.subject);
-    this.getFields = sinon.stub().returns({key1: "value1", key2: "value2"})
+    this._fields = {key1: "value1", key2: "value2"};
+    this.getFields = sinon.stub().returns(this._fields);
 }
 
 module("Outgoing Tests", {
@@ -186,8 +187,22 @@ test( "stopped data interception array fields are shown in array", function() {
 
     oh.onData(dataJp);
     equal(2, oh.interceptedData()[0].damFields().length);
-    equal("key1", oh.interceptedData()[0].damFields()[0].key);
-    equal("value1", oh.interceptedData()[0].damFields()[0].value);
-    equal("key2", oh.interceptedData()[0].damFields()[1].key);
-    equal("value2", oh.interceptedData()[0].damFields()[1].value);
+    equal("key1", oh.interceptedData()[0].damFields()[0].key());
+    equal("value1", oh.interceptedData()[0].damFields()[0].value());
+    equal("key2", oh.interceptedData()[0].damFields()[1].key());
+    equal("value2", oh.interceptedData()[0].damFields()[1].value());
+});
+
+test( "altered fields will be forwarded on", function() {
+    var oh = new OutgoingHandler(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.inFilter(true);
+
+    oh.onData(dataJp);
+    oh.interceptedData()[0].damFields()[0].value('value3');
+    oh.forwardInterceptedData(oh, oh.interceptedData()[0]);
+
+    ok( dataJp.proceed.called );
+    equal("value3", dataJp.target.getFields().key1 );
 });

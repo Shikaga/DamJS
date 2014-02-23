@@ -105,9 +105,9 @@ function createDom() {
         "<div class='intercepted' data-bind='foreach: interceptedData'>" +
         "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.forwardInterceptedData($parent, data, event) }'>Forward</button>" +
         "   <div class='matcher-matcher' data-bind='text: target.getSubject()'></div>" +
-        "   <div data-bind='foreach: damFields()'>" +
+        "   <div data-bind='foreach: damFields'>" +
         "       <div data-bind='text: key'></div>:" +
-        "       <div data-bind='text: value'></div>" +
+        "       <input data-bind='value: value'/>" +
         "   </div>" +
         "</div>" +
         "</div>" +
