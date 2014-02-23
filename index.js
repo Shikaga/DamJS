@@ -59,12 +59,12 @@ function createCSS() {
         "}" +
         "" +
         ".subscription-subject {" +
-        "   width: 330px;" +
+        "   width: 300px;" +
         "   display: inline-block;" +
         "}" +
         "" +
         ".matcher-matcher {" +
-        "   width: 300px;" +
+        "   width: 340px;" +
         "   display: inline-block;" +
         "}" +
         "" +
@@ -75,7 +75,8 @@ function createCSS() {
         "}" +
         "" +
         ".intercepted {" +
-        "   height: 100px;" +
+        "   height: 200px;" +
+        "   overflow-y: scroll;" +
         "   color: rgb(41,41,41);" +
         "   background: -webkit-linear-gradient(top, #f5f5f5 0%, #b7b6b4 100%);" +
         "}" +
@@ -104,6 +105,10 @@ function createDom() {
         "<div class='intercepted' data-bind='foreach: interceptedData'>" +
         "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.forwardInterceptedData($parent, data, event) }'>Forward</button>" +
         "   <div class='matcher-matcher' data-bind='text: target.getSubject()'></div>" +
+        "   <div data-bind='foreach: damFields()'>" +
+        "       <div data-bind='text: key'></div>:" +
+        "       <div data-bind='text: value'></div>" +
+        "   </div>" +
         "</div>" +
         "</div>" +
         "";

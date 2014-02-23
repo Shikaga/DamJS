@@ -12,6 +12,7 @@ function MockSubscriptionImpl(subject) {
 function MockRecordType1Event(subject) {
     this.subject = subject;
     this.getSubject = sinon.stub().returns(this.subject);
+    this.getFields = sinon.stub().returns({key1: "value1", key2: "value2"})
 }
 
 module("Outgoing Tests", {
@@ -175,4 +176,18 @@ test( "stopped data can be forwarded on", function() {
 
     ok( dataJp.proceed.called );
     equal(0, oh.interceptedData().length);
+});
+
+test( "stopped data interception array fields are shown in array", function() {
+    var oh = new OutgoingHandler(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.inFilter(true);
+
+    oh.onData(dataJp);
+    equal(2, oh.interceptedData()[0].damFields().length);
+    equal("key1", oh.interceptedData()[0].damFields()[0].key);
+    equal("value1", oh.interceptedData()[0].damFields()[0].value);
+    equal("key2", oh.interceptedData()[0].damFields()[1].key);
+    equal("value2", oh.interceptedData()[0].damFields()[1].value);
 });

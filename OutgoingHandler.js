@@ -45,6 +45,14 @@ OutgoingHandler.prototype.onData = function(joinPoint) {
     this.matchers().forEach(function(matcher){
         if (matcher.inFilter() && subject === matcher.matcher) {
             filtered = true;
+            joinPoint.damFields = ko.computed(function() {
+                var fieldArray = [];
+                var fieldsMap = joinPoint.target.getFields();
+                for (var key in fieldsMap) {
+                    fieldArray.push({key: key, value: fieldsMap[key]});
+                }
+                return fieldArray;
+            });
             this.interceptedData.push(joinPoint);
         }
     }.bind(this));
