@@ -6,21 +6,37 @@ require(['https://raw.github.com/cujojs/meld/master/meld.js',
     meld.around(
         caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
         console.log('MELD', joinPoint);
-        outgoingHandler.onSubscribe(joinPoint);
+            damJS.onSubscribe(joinPoint);
     });
 
     meld.around(
         caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
             console.log('MELD INCOMING', this.getSubject(), this.getFields());
-            outgoingHandler.onData(joinPoint);
+            damJS.onData(joinPoint);
         }
     )
 
     createCSS();
     var div = createDom();
-    this.outgoingHandler = new DamJS(ko)
+    this.damJS = new DamJS(ko)
     this.helloText = ko.observable('Boom!!');
-    ko.applyBindings(this.outgoingHandler, div);
+    ko.applyBindings(this.damJS, div);
+
+    this.damJS.addPlugin({
+        inFiltered: function(subject) {
+            if (subject === '/CALENDAR/TENORDATES/EURUSD') {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        onData: function(joinPoint) {
+            var dateObject = JSON.parse(joinPoint.target.getFields().Tenor);
+            dateObject.SPOT = "20140226";
+            joinPoint.target._fields.Tenor = JSON.stringify(dateObject);
+            joinPoint.proceed();
+        }
+    })
 })
 
 function createCSS() {

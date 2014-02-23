@@ -206,3 +206,24 @@ test( "altered fields will be forwarded on", function() {
     ok( dataJp.proceed.called );
     equal("value3", dataJp.target.getFields().key1 );
 });
+
+//PLUGINS
+
+test( "plugins can change data for you", function() {
+    var oh = new DamJS(ko);
+    var customPlugin = {
+        inFiltered: function(subject) {
+            return true;
+        },
+        onData: function(joinPoint) {
+            joinPoint.target._fields['key1'] = 'value3';
+            joinPoint.proceed();
+        }
+    }
+
+    oh.addPlugin(customPlugin);
+    oh.onData(dataJp);
+
+    ok( dataJp.proceed.called );
+    equal("value3", dataJp.target.getFields().key1 );
+});
