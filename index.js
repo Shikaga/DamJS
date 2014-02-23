@@ -1,6 +1,6 @@
 require(['https://raw.github.com/cujojs/meld/master/meld.js',
     'http://knockoutjs.com/downloads/knockout-3.0.0.js',
-    'http://localhost:8080/OutgoingHandler.js'], function(meld, ko) {
+    'http://localhost:8080/DamJS.js'], function(meld, ko) {
 
 
     meld.around(
@@ -18,7 +18,7 @@ require(['https://raw.github.com/cujojs/meld/master/meld.js',
 
     createCSS();
     var div = createDom();
-    this.outgoingHandler = new OutgoingHandler(ko)
+    this.outgoingHandler = new DamJS(ko)
     this.helloText = ko.observable('Boom!!');
     ko.applyBindings(this.outgoingHandler, div);
 })

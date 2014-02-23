@@ -34,7 +34,7 @@ module("Outgoing Tests", {
 })
 
 test( "returns subscriptionManager", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     var returnedData = oh.onSubscribe(jp);
     ok( jp.proceed.called);
     equal('test', returnedData);
@@ -42,7 +42,7 @@ test( "returns subscriptionManager", function() {
 
 
 test( "matchers let subscriptions through by default", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     oh.onSubscribe(jp);
@@ -50,7 +50,7 @@ test( "matchers let subscriptions through by default", function() {
 });
 
 test( "matchers stop subscriptions when activated", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     matcher.outFilter(true);
@@ -59,7 +59,7 @@ test( "matchers stop subscriptions when activated", function() {
 });
 
 test( "matchers only stop subscriptions they match", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     oh.newMatcherText('/FX/USDCHF');
@@ -75,7 +75,7 @@ test( "matchers only stop subscriptions they match", function() {
 // SUBSCRIPTIONS
 
 test( "lists subscriptions that it sees", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     equal( 0, oh.subscriptionsCalled().length);
 
     oh.onSubscribe(jp);
@@ -86,7 +86,7 @@ test( "lists subscriptions that it sees", function() {
 });
 
 test( "Copy subscription to matcher", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     equal( 0, oh.subscriptionsCalled().length);
 
     oh.onSubscribe(jp);
@@ -99,14 +99,14 @@ test( "Copy subscription to matcher", function() {
 // DATA
 
 test( "lets data through by default", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     var returnedData = oh.onData(dataJp);
     ok( dataJp.proceed.called);
     equal("test", returnedData);
 });
 
 test( "matchers let data through by default", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
 
@@ -115,7 +115,7 @@ test( "matchers let data through by default", function() {
 });
 
 test( "matchers stop data when activated", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     matcher.inFilter(true);
@@ -125,7 +125,7 @@ test( "matchers stop data when activated", function() {
 });
 
 test( "matchers only stop data they match", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     oh.newMatcherText('/FX/USDCHF');
@@ -141,7 +141,7 @@ test( "matchers only stop data they match", function() {
 //INTERCEPTED
 
 test( "stopped data is placed in interception array", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     matcher.inFilter(true);
@@ -152,7 +152,7 @@ test( "stopped data is placed in interception array", function() {
 
 
 test( "unstopped data is not placed in interception array", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     matcher.inFilter(true);
@@ -163,7 +163,7 @@ test( "unstopped data is not placed in interception array", function() {
 });
 
 test( "stopped data can be forwarded on", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     matcher.inFilter(true);
@@ -180,7 +180,7 @@ test( "stopped data can be forwarded on", function() {
 });
 
 test( "stopped data interception array fields are shown in array", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     matcher.inFilter(true);
@@ -194,7 +194,7 @@ test( "stopped data interception array fields are shown in array", function() {
 });
 
 test( "altered fields will be forwarded on", function() {
-    var oh = new OutgoingHandler(ko);
+    var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
     var matcher = oh.addNewMatcher();
     matcher.inFilter(true);
