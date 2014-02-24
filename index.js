@@ -1,17 +1,16 @@
 require(['http://localhost:8080/lib/meld.js',
     'http://localhost:8080/lib/knockout.js',
-    'http://localhost:8080/DamJS.js'], function(meld, ko) {
+    'http://localhost:8080/DamJS.js',
+    'http://localhost:8080/DamJSPlugin.js'], function(meld, ko) {
 
 
     meld.around(
         caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
-        console.log('MELD', joinPoint);
             damJS.onSubscribe(joinPoint);
     });
 
     meld.around(
         caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
-            console.log('MELD INCOMING', this.getSubject(), this.getFields());
             damJS.onData(joinPoint);
         }
     )
@@ -22,21 +21,33 @@ require(['http://localhost:8080/lib/meld.js',
     this.helloText = ko.observable('Boom!!');
     ko.applyBindings(this.damJS, div);
 
-    this.damJS.addPlugin({
-        inFiltered: function(subject) {
-            if (subject === '/CALENDAR/TENORDATES/EURUSD') {
-                return true;
-            } else {
-                return false;
-            }
-        },
-        onData: function(joinPoint) {
-            var dateObject = JSON.parse(joinPoint.target.getFields().Tenor);
-            dateObject.SPOT = "20140226";
-            joinPoint.target._fields.Tenor = JSON.stringify(dateObject);
-            joinPoint.proceed();
-        }
-    })
+
+    var plugin = new DamJSPlugin(ko);
+    var pluginControl = new DamJSPluginController(ko);
+    var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['1', '2', '3']));
+    pluginControl.addDropDown(pluginDropDown);
+    plugin.addControl(pluginControl)
+    damJS.addPlugin(plugin);
+
+//    this.damJS.addPlugin({
+//        inFiltered: function(subject) {
+//            if (subject === '/PRIVATE/TRADE/FX') {
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        },
+//        onData: function(joinPoint) {
+//            var fields = joinPoint.target.getFields();
+//            var msgType = fields.MsgType || null;
+//            console.log(msgType);
+//            if (msgType == 'TradeConfirmation') {
+//                x = joinPoint;
+//            } else {
+//                joinPoint.proceed();
+//            }
+//        }
+//    })
 })
 
 function createCSS() {
@@ -126,6 +137,15 @@ function createDom() {
         "       <input data-bind='value: value'/>" +
         "   </div>" +
         "</div>" +
+        "<h1>Plugins</h1>" +
+        "   <div data-bind='foreach: plugins'>" +
+        "      <div data-bind='foreach: controls'>" +
+        "         <div data-bind='foreach: dropdowns'>" +
+        "           <select data-bind='options: options, value: value'>" +
+        "         </div>" +
+        "      </div>" +
+        "   </div>" +
+
         "</div>" +
         "";
     document.body.appendChild(damDiv);
