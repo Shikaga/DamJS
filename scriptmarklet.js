@@ -15,7 +15,7 @@ function loadScript(src, callback){
   t.appendChild(s, t);
 }
 
-loadScript("https://requirejs.org/docs/release/2.1.11/minified/require.js", function() {
+loadScript("http://localhost:8080/lib/require.js", function() {
 	loadScript("http://localhost:8080/index.js", function() {
 		console.log('?');
 	})
