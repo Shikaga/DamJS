@@ -19,10 +19,10 @@ function MockRecordType1Event(subject) {
 module("Outgoing Tests", {
     setup: function() {
         jp = new MockJoinPoint();
-        jp.args[0] = new MockSubscriptionImpl('/FX/EURUSD');
+        jp.args[1] = new MockSubscriptionImpl('/FX/EURUSD');
 
         unfilteredJP = new MockJoinPoint();
-        unfilteredJP.args[0] = new MockSubscriptionImpl('/FX/USDCHF');
+        unfilteredJP.args[1] = new MockSubscriptionImpl('/FX/USDCHF');
 
         dataJp = new MockJoinPoint();
         dataJp.target = new MockRecordType1Event('/FX/EURUSD');

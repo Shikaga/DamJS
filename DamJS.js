@@ -20,13 +20,13 @@ DamJS.prototype._addMatcher = function(subscription) {
 
 DamJS.prototype.copySubscriptionToMatcher = function(self, subscription) {
     //Architecture of KO prevents knowing object when method invoked
-    self._addMatcher(subscription.args[0].getSubject());
+    self._addMatcher(subscription.args[1].subject);
 }
 
 DamJS.prototype.onSubscribe = function(joinPoint) {
     this.subscriptionsCalled.push(joinPoint);
 
-    var subject = joinPoint.args[0].getSubject();
+    var subject = joinPoint.args[1].subject;
     var filtered = false;
     this.matchers().forEach(function(matcher){
         if (matcher.outFiltered(subject)) {

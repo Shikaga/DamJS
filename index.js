@@ -1,5 +1,5 @@
-require(['https://raw.github.com/cujojs/meld/master/meld.js',
-    'http://knockoutjs.com/downloads/knockout-3.0.0.js',
+require(['http://localhost:8080/lib/meld.js',
+    'http://localhost:8080/lib/knockout.js',
     'http://localhost:8080/DamJS.js'], function(meld, ko) {
 
 
@@ -107,7 +107,7 @@ function createDom() {
         "<h1>Subscriptions</h1>" +
         "<div class='subscriptions' data-bind='foreach: subscriptionsCalled'>" +
         "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.copySubscriptionToMatcher($parent, data, event) }'>Copy</button>" +
-        "   <div class='subscription-subject'  data-bind='text: args[0].getSubject()'></div>" +
+        "   <div class='subscription-subject'  data-bind='text: args[1].subject'></div>" +
         "</div>" +
         "<h1>Matchers</h1>" +
         "<div class='matchers' data-bind='foreach: matchers'>" +
