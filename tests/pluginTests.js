@@ -58,4 +58,16 @@ test( "controls are added to DamJS", function() {
     equal(damJS.plugins()[0].controls()[0].dropdowns()[0].value, 1);
 });
 
+test( "buttons", function() {
+    var damJS = new DamJS(ko);
+    var plugin = new DamJSPlugin(ko);
+    var pluginControl = new DamJSPluginController(ko);
+    var pluginDropDown = new DamJSPluginDropDown(['1', '2', '3']);
+    pluginControl.addDropDown(pluginDropDown);
+    plugin.addControl(pluginControl)
+    damJS.addPlugin(plugin);
+
+    equal(damJS.plugins()[0].controls()[0].dropdowns()[0].value, 1);
+});
+
 
