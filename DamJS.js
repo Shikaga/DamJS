@@ -78,6 +78,7 @@ DamJS.prototype.forwardInterceptedData = function(self, data) {
 
 DamJS.prototype.addPlugin = function(plugin) {
     this.plugins.push(plugin);
+    plugin.damJS = this;
 }
 
 function DamJSMatcher(ko, subscription) {

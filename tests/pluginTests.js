@@ -15,6 +15,21 @@ test( "plugin can't handle subject by default", function() {
     equal(false, plugin.inFiltered('/FX/EURUSD'));
 });
 
+test( "plugin has reference to DamJS", function() {
+    var damJS = new DamJS(ko);
+    var plugin = new DamJSPlugin(ko);
+    damJS.addPlugin(plugin);
+
+    equal(plugin.damJS, damJS);
+});
+
+test( "plugin provides data", function() {
+    var plugin = new DamJSPlugin(ko);
+    plugin.data['var1'] = 'Hello';
+
+    equal(plugin.data['var1'], 'Hello');
+});
+
 test( "plugin can handle specific subject", function() {
     var plugin = new DamJSPlugin(ko);
     plugin.subject = '/FX/EURUSD';
@@ -43,7 +58,7 @@ test( "dropdown defaults to first value", function() {
     var pluginDropDown = new DamJSPluginDropDown(['1', '2', '3']);
     pluginControl.addDropDown(pluginDropDown);
 
-    equal(pluginDropDown.value, 1);
+    equal(pluginDropDown.value(), 1);
 });
 
 test( "controls are added to DamJS", function() {
@@ -55,19 +70,5 @@ test( "controls are added to DamJS", function() {
     plugin.addControl(pluginControl)
     damJS.addPlugin(plugin);
 
-    equal(damJS.plugins()[0].controls()[0].dropdowns()[0].value, 1);
+    equal(damJS.plugins()[0].controls()[0].dropdowns()[0].value(), 1);
 });
-
-test( "buttons", function() {
-    var damJS = new DamJS(ko);
-    var plugin = new DamJSPlugin(ko);
-    var pluginControl = new DamJSPluginController(ko);
-    var pluginDropDown = new DamJSPluginDropDown(['1', '2', '3']);
-    pluginControl.addDropDown(pluginDropDown);
-    plugin.addControl(pluginControl)
-    damJS.addPlugin(plugin);
-
-    equal(damJS.plugins()[0].controls()[0].dropdowns()[0].value, 1);
-});
-
-

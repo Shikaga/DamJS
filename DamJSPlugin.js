@@ -1,8 +1,10 @@
 function DamJSPlugin(ko) {
     this.ko = ko;
     this.subject = null;
+    this.data = {};
     this.forwardingHandler = null
     this.controls = this.ko.observableArray();
+    this.damJS = null;
 }
 
 DamJSPlugin.prototype.addControl = function(control) {
@@ -32,5 +34,5 @@ DamJSPluginController.prototype.addDropDown = function(dropdown) {
 
 function DamJSPluginDropDown(options) {
     this.options = options;
-    this.value = options[0];
+    this.value = ko.observable(options[0]);
 }

@@ -24,9 +24,28 @@ require(['http://localhost:8080/lib/meld.js',
 
     var plugin = new DamJSPlugin(ko);
     var pluginControl = new DamJSPluginController(ko);
-    var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['1', '2', '3']));
+    var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['OpenAck', 'PickUp', 'PriceUpdate', 'ClientCloseAck']));
     pluginControl.addDropDown(pluginDropDown);
-    plugin.addControl(pluginControl)
+    plugin.addControl(pluginControl);
+    plugin.data['mode'] = 'Open';
+	
+	plugin.subject = '/PRIVATE/TRADE/FX';
+	plugin.setForwardingHandler(function(joinPoint) {
+        if (this.data['mode'] == 'Intercept') {
+            this.damJS._addDataToIntercepted(joinPoint);
+        } else {
+            var expectedMsgType = joinPoint.target.getFields().MsgType;
+            var receivedMsgType = pluginDropDown.value;
+            if (expectedMsgType !== receivedMsgType) {
+                this.data['mode'] = 'Intercept';
+                this.damJS._addDataToIntercepted(joinPoint);
+            } else {
+                joinPoint.proceed();
+            }
+        }
+
+
+	});
     damJS.addPlugin(plugin);
 
 //    this.damJS.addPlugin({
