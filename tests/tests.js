@@ -19,14 +19,22 @@ function MockRecordType1Event(subject) {
 module("Outgoing Tests", {
     setup: function() {
         jp = new MockJoinPoint();
+        jp.args[0] = {};
         jp.args[1] = new MockSubscriptionImpl('/FX/EURUSD');
 
         unfilteredJP = new MockJoinPoint();
+        unfilteredJP.args[0] = {};
         unfilteredJP.args[1] = new MockSubscriptionImpl('/FX/USDCHF');
 
         dataJp = new MockJoinPoint();
         dataJp.target = new MockRecordType1Event('/FX/EURUSD');
 
+        contribJp = new MockJoinPoint();
+        contribJp.args[0] = '/FX/EURUSD';
+        contribJp.args [1] = {
+          key1: 'value1',
+          key2: 'value2'
+        }
 
         unfilteredDataJp = new MockJoinPoint();
         unfilteredDataJp.target = new MockRecordType1Event('/FX/USDCHF');
@@ -150,6 +158,14 @@ test( "stopped data is placed in interception array", function() {
     equal(1, oh.interceptedData().length);
 });
 
+test( "stopped contribs are placed in interception array", function() {
+    var oh = new DamJS(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.outFilter(true);
+    oh.onContrib(contribJp);
+    equal(1, oh.interceptedContrib().length);
+});
 
 test( "unstopped data is not placed in interception array", function() {
     var oh = new DamJS(ko);
@@ -179,6 +195,23 @@ test( "stopped data can be forwarded on", function() {
     equal(0, oh.interceptedData().length);
 });
 
+test( "stopped contribs can be forwarded on", function() {
+    var oh = new DamJS(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.outFilter(true);
+
+    oh.onContrib(contribJp);
+
+    ok( !contribJp.proceed.called );
+    equal(1, oh.interceptedContrib().length);
+
+    oh.forwardInterceptedContrib(oh, oh.interceptedContrib()[0]);
+
+    ok( contribJp.proceed.called );
+    equal(0, oh.interceptedContrib().length);
+});
+
 test( "stopped data interception array fields are shown in array", function() {
     var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
@@ -193,6 +226,20 @@ test( "stopped data interception array fields are shown in array", function() {
     equal("value2", oh.interceptedData()[0].damFields()[1].value());
 });
 
+test( "stopped contrib interception array fields are shown in array", function() {
+    var oh = new DamJS(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.outFilter(true);
+
+    oh.onContrib(contribJp);
+    equal(2, oh.interceptedContrib()[0].damFields().length);
+    equal("key1", oh.interceptedContrib()[0].damFields()[0].key());
+    equal("value1", oh.interceptedContrib()[0].damFields()[0].value());
+    equal("key2", oh.interceptedContrib()[0].damFields()[1].key());
+    equal("value2", oh.interceptedContrib()[0].damFields()[1].value());
+});
+
 test( "altered fields will be forwarded on", function() {
     var oh = new DamJS(ko);
     oh.newMatcherText('/FX/EURUSD');
@@ -205,6 +252,20 @@ test( "altered fields will be forwarded on", function() {
 
     ok( dataJp.proceed.called );
     equal("value3", dataJp.target.getFields().key1 );
+});
+
+test( "altered fields will be forwarded on", function() {
+    var oh = new DamJS(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.outFilter(true);
+
+    oh.onContrib(contribJp);
+    oh.interceptedContrib()[0].damFields()[0].value('value3');
+    oh.forwardInterceptedContrib(oh, oh.interceptedContrib()[0]);
+
+    ok( contribJp.proceed.called );
+    equal("value3", contribJp.args[1].key1 );
 });
 
 //PLUGINS

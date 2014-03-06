@@ -28,11 +28,18 @@ test( "plugin provides data", function() {
     plugin.data['var1'] = 'Hello';
 
     equal(plugin.data['var1'], 'Hello');
+  });
+
+test( "plugin disabled by default", function() {
+    var plugin = new DamJSPlugin(ko);
+    plugin.subject = '/FX/EURUSD';
+    equal(false, plugin.inFiltered('/FX/EURUSD'));
 });
 
 test( "plugin can handle specific subject", function() {
     var plugin = new DamJSPlugin(ko);
     plugin.subject = '/FX/EURUSD';
+    plugin.enabled(true);
     equal(true, plugin.inFiltered('/FX/EURUSD'));
 });
 
@@ -69,6 +76,5 @@ test( "controls are added to DamJS", function() {
     pluginControl.addDropDown(pluginDropDown);
     plugin.addControl(pluginControl)
     damJS.addPlugin(plugin);
-
     equal(damJS.plugins()[0].controls()[0].dropdowns()[0].value(), 1);
 });

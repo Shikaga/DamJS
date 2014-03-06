@@ -7,11 +7,18 @@ require(['http://localhost:8080/lib/meld.js',
     meld.around(
         caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
             damJS.onSubscribe(joinPoint);
+            console.log(1, joinPoint);
     });
 
     meld.around(
+        caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
+            damJS.onContrib(joinPoint);
+            console.log(2);
+    });
+    meld.around(
         caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
             damJS.onData(joinPoint);
+            console.log(3);
         }
     )
 
@@ -47,26 +54,6 @@ require(['http://localhost:8080/lib/meld.js',
 
 	});
     damJS.addPlugin(plugin);
-
-//    this.damJS.addPlugin({
-//        inFiltered: function(subject) {
-//            if (subject === '/PRIVATE/TRADE/FX') {
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        },
-//        onData: function(joinPoint) {
-//            var fields = joinPoint.target.getFields();
-//            var msgType = fields.MsgType || null;
-//            console.log(msgType);
-//            if (msgType == 'TradeConfirmation') {
-//                x = joinPoint;
-//            } else {
-//                joinPoint.proceed();
-//            }
-//        }
-//    })
 })
 
 function createCSS() {
@@ -156,8 +143,18 @@ function createDom() {
         "       <input data-bind='value: value'/>" +
         "   </div>" +
         "</div>" +
+        "<div class='intercepted' data-bind='foreach: interceptedContrib'>" +
+        "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.forwardInterceptedContrib($parent, data, event) }'>Forward</button>" +
+        "   <div class='matcher-matcher' data-bind='text: args[0]'></div>" +
+        "   <div data-bind='foreach: damFields'>" +
+        "       <div data-bind='text: key'></div>:" +
+        "       <input data-bind='value: value'/>" +
+        "   </div>" +
+        "</div>" +
         "<h1>Plugins</h1>" +
         "   <div data-bind='foreach: plugins'>" +
+        "      <input type='checkbox' data-bind='checked:enabled' />" +
+        "      <span data-bind='text:name' ></span>" +
         "      <div data-bind='foreach: controls'>" +
         "         <div data-bind='foreach: dropdowns'>" +
         "           <select data-bind='options: options, value: value'>" +
@@ -170,4 +167,3 @@ function createDom() {
     document.body.appendChild(damDiv);
     return damDiv;
 }
-

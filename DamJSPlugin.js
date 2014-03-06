@@ -1,10 +1,12 @@
 function DamJSPlugin(ko) {
     this.ko = ko;
+    this.name = this.ko.observable('UNNAMED');
     this.subject = null;
     this.data = {};
     this.forwardingHandler = null
     this.controls = this.ko.observableArray();
     this.damJS = null;
+    this.enabled = this.ko.observable(false);
 }
 
 DamJSPlugin.prototype.addControl = function(control) {
@@ -12,7 +14,7 @@ DamJSPlugin.prototype.addControl = function(control) {
 }
 
 DamJSPlugin.prototype.inFiltered = function(subject) {
-    return this.subject === subject;
+    return (this.subject === subject) && this.enabled();
 }
 
 DamJSPlugin.prototype.setForwardingHandler = function(forwardingHandler) {

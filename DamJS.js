@@ -4,6 +4,7 @@ var DamJS = function(ko) {
     this.matchers = this.ko.observableArray();
     this.subscriptionsCalled = this.ko.observableArray();
     this.interceptedData = this.ko.observableArray();
+    this.interceptedContrib = this.ko.observableArray();
     this.plugins = this.ko.observableArray();
     var self = this;
 }
@@ -23,19 +24,32 @@ DamJS.prototype.copySubscriptionToMatcher = function(self, subscription) {
     self._addMatcher(subscription.args[1].subject);
 }
 
-DamJS.prototype.onSubscribe = function(joinPoint) {
-    this.subscriptionsCalled.push(joinPoint);
+DamJS.prototype._isSubscription = function(joinPoint) {
+  if (typeof(joinPoint.args[0].listener) == 'undefined') {
+    return true;
+  } else {
+    return false;
+  }
+}
 
-    var subject = joinPoint.args[1].subject;
-    var filtered = false;
-    this.matchers().forEach(function(matcher){
-        if (matcher.outFiltered(subject)) {
-            filtered = true;
-        }
-    });
-    if (!filtered) {
-        return joinPoint.proceed();
-    }
+DamJS.prototype.onSubscribe = function(joinPoint) {
+    if (this._isSubscription(joinPoint)) {
+      this.subscriptionsCalled.push(joinPoint);
+
+      var subject = joinPoint.args[1].subject;
+      var filtered = false;
+      this.matchers().forEach(function(matcher){
+          if (matcher.outFiltered(subject)) {
+              filtered = true;
+          }
+      });
+      if (!filtered) {
+          return joinPoint.proceed();
+      }
+    } else {
+      return joinPoint.proceed();
+  }
+
 }
 
 DamJS.prototype._addDataToIntercepted = function(joinPoint) {
@@ -46,6 +60,17 @@ DamJS.prototype._addDataToIntercepted = function(joinPoint) {
     }
     joinPoint.damFields = this.ko.observableArray(fieldArray);
     this.interceptedData.push(joinPoint);
+}
+
+
+DamJS.prototype._addContribToIntercepted = function(joinPoint) {
+    var fieldArray = [];
+    var fieldsMap = joinPoint.args[1];
+    for (var key in fieldsMap) {
+        fieldArray.push({key: this.ko.observable(key), value: this.ko.observable(fieldsMap[key])});
+    }
+    joinPoint.damFields = this.ko.observableArray(fieldArray);
+    this.interceptedContrib.push(joinPoint);
 }
 
 DamJS.prototype.onData = function(joinPoint) {
@@ -68,12 +93,40 @@ DamJS.prototype.onData = function(joinPoint) {
     }
 }
 
+DamJS.prototype.onContrib = function(joinPoint) {
+  var subject = joinPoint.args[0];
+  var filtered = false;
+  this.matchers().forEach(function(matcher){
+      if (matcher.outFiltered(subject)) {
+          filtered = true;
+          this._addContribToIntercepted(joinPoint);
+      }
+  }.bind(this));
+  // this.plugins().forEach(function(plugin) {
+  //     if (plugin.outFiltered(subject)) {
+  //         filtered = true;
+  //         plugin.onContrib(joinPoint);
+  //     }
+  // });
+  if (!filtered) {
+      return joinPoint.proceed();
+  }
+}
+
 DamJS.prototype.forwardInterceptedData = function(self, data) {
     data.damFields().forEach(function(field) {
         data.target._fields[field.key()] = field.value();
     });
     data.proceed();
     self.interceptedData.remove(data);
+}
+
+DamJS.prototype.forwardInterceptedContrib = function(self, contrib) {
+    contrib.damFields().forEach(function(field) {
+        contrib.args[1][field.key()] = field.value();
+    });
+    contrib.proceed();
+    self.interceptedContrib.remove(contrib);
 }
 
 DamJS.prototype.addPlugin = function(plugin) {
