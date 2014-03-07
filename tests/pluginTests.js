@@ -34,13 +34,35 @@ test( "plugin disabled by default", function() {
     var plugin = new DamJSPlugin(ko);
     plugin.subject = '/FX/EURUSD';
     equal(false, plugin.inFiltered('/FX/EURUSD'));
+    equal(false, plugin.contribFiltered('/FX/EURUSD'));
 });
 
-test( "plugin can handle specific subject", function() {
+test( "filtering disabled if forwardingHandler not enabled", function() {
     var plugin = new DamJSPlugin(ko);
     plugin.subject = '/FX/EURUSD';
     plugin.enabled(true);
+    equal(false, plugin.inFiltered('/FX/EURUSD'));
+    equal(false, plugin.contribFiltered('/FX/EURUSD'));
+});
+
+test( "inFiltering enabled if forwardingHandler set", function() {
+    var plugin = new DamJSPlugin(ko);
+    plugin.subject = '/FX/EURUSD';
+    plugin.enabled(true);
+    var spy = sinon.spy();
+    plugin.setForwardingHandler(spy);
+
     equal(true, plugin.inFiltered('/FX/EURUSD'));
+});
+
+test( "contribFiltering enabled if contribHandler set", function() {
+    var plugin = new DamJSPlugin(ko);
+    plugin.subject = '/FX/EURUSD';
+    plugin.enabled(true);
+    var spy = sinon.spy();
+    plugin.setContribHandler(spy);
+
+    equal(true, plugin.contribFiltered('/FX/EURUSD'));
 });
 
 test( "forwarding handler gets called on data", function() {
@@ -50,6 +72,16 @@ test( "forwarding handler gets called on data", function() {
     plugin.setForwardingHandler(spy);
 
     plugin.onData(jp);
+    equal(true, spy.calledWith(jp));
+});
+
+test( "contrib handler gets called on data", function() {
+    var plugin = new DamJSPlugin(ko);
+    plugin.subject = '/FX/EURUSD';
+    var spy = sinon.spy();
+    plugin.setContribHandler(spy);
+
+    plugin.onContrib(jp);
     equal(true, spy.calledWith(jp));
 });
 
