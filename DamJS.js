@@ -102,12 +102,12 @@ DamJS.prototype.onContrib = function(joinPoint) {
           this._addContribToIntercepted(joinPoint);
       }
   }.bind(this));
-  // this.plugins().forEach(function(plugin) {
-  //     if (plugin.outFiltered(subject)) {
-  //         filtered = true;
-  //         plugin.onContrib(joinPoint);
-  //     }
-  // });
+  this.plugins().forEach(function(plugin) {
+      if (plugin.contribFiltered(subject)) {
+          filtered = true;
+          plugin.onContrib(joinPoint);
+      }
+  });
   if (!filtered) {
       return joinPoint.proceed();
   }

@@ -29,13 +29,13 @@ require(['http://localhost:8080/lib/meld.js',
     ko.applyBindings(this.damJS, div);
 
 
-    var plugin = new DamJSPlugin(ko);
-    var pluginControl = new DamJSPluginController(ko);
-    var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['OpenAck', 'PickUp', 'PriceUpdate', 'ClientCloseAck']));
-    pluginControl.addDropDown(pluginDropDown);
-    plugin.addControl(pluginControl);
-    plugin.data['mode'] = 'Open';
-	
+  var plugin = new DamJSPlugin(ko);
+  var pluginControl = new DamJSPluginController(ko);
+  var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['OpenAck', 'PickUp', 'PriceUpdate', 'ClientCloseAck']));
+  pluginControl.addDropDown(pluginDropDown);
+  plugin.addControl(pluginControl);
+  plugin.data['mode'] = 'Open';
+
 	plugin.subject = '/PRIVATE/TRADE/FX';
 	plugin.setForwardingHandler(function(joinPoint) {
         if (this.data['mode'] == 'Intercept') {
@@ -53,6 +53,17 @@ require(['http://localhost:8080/lib/meld.js',
 
 
 	});
+    damJS.addPlugin(plugin);
+
+    var plugin = new DamJSPlugin(ko);
+    var pluginControl = new DamJSPluginController(ko);
+    pluginControl.addDropDown(pluginDropDown);
+
+    plugin.subject = '/PRIVATE/TRADE/FX';
+    plugin.setContribHandler(function(joinPoint) {
+      joinPoint.args[1].L2_Amount = joinPoint.args[1].L2_Amount * 2;
+      joinPoint.proceed();
+    });
     damJS.addPlugin(plugin);
 })
 
