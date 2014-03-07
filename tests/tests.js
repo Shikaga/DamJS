@@ -18,8 +18,13 @@ function MockRecordType1Event(subject) {
 
 module("Outgoing Tests", {
     setup: function() {
+        mockSubscriptionImpl = {};
+        mockCommandResponse = {
+          listener: function() {}
+        };
+
         jp = new MockJoinPoint();
-        jp.args[0] = {};
+        jp.args[0] = mockSubscriptionImpl;
         jp.args[1] = new MockSubscriptionImpl('/FX/EURUSD');
 
         unfilteredJP = new MockJoinPoint();
@@ -64,6 +69,18 @@ test( "matchers stop subscriptions when activated", function() {
     matcher.outFilter(true);
     oh.onSubscribe(jp);
     ok( !jp.proceed.called );
+});
+
+test( "matchers allow contribs through when activated", function() {
+    var oh = new DamJS(ko);
+    oh.newMatcherText('/FX/EURUSD');
+    var matcher = oh.addNewMatcher();
+    matcher.outFilter(true);
+
+    jp.args[0] = mockCommandResponse;
+    oh.onSubscribe(jp);
+
+    ok( jp.proceed.called );
 });
 
 test( "matchers only stop subscriptions they match", function() {
