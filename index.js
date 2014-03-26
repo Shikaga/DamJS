@@ -30,8 +30,9 @@ require(['http://localhost:8080/lib/meld.js',
 
 
   var plugin = new DamJSPlugin(ko);
+    plugin.name('Trade Intercepter')
   var pluginControl = new DamJSPluginController(ko);
-  var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['OpenAck', 'PickUp', 'PriceUpdate', 'ClientCloseAck']));
+  var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['OpenAck', 'PickUp', 'PriceUpdate', 'SubmitAck']));
   pluginControl.addDropDown(pluginDropDown);
   plugin.addControl(pluginControl);
   plugin.data['mode'] = 'Open';
@@ -43,7 +44,7 @@ require(['http://localhost:8080/lib/meld.js',
         } else {
             var expectedMsgType = joinPoint.target.getFields().MsgType;
             var receivedMsgType = pluginDropDown.value;
-            if (expectedMsgType !== receivedMsgType) {
+            if (expectedMsgType == receivedMsgType) {
                 this.data['mode'] = 'Intercept';
                 this.damJS._addDataToIntercepted(joinPoint);
             } else {
@@ -56,6 +57,7 @@ require(['http://localhost:8080/lib/meld.js',
     damJS.addPlugin(plugin);
 
     var plugin = new DamJSPlugin(ko);
+    plugin.name('Uneven Swap')
     var pluginControl = new DamJSPluginController(ko);
     pluginControl.addDropDown(pluginDropDown);
 
