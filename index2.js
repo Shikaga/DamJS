@@ -1,127 +1,126 @@
 (function() {
     setTimeout(function () {
-        debugger;
     w = window;
     d = w.document;
     var s = d.createElement('script');
     s.src = 'http://fb.me/react-0.11.1.min.js';
     s.onload = function() {
         var s = d.createElement('script');
-        s.src = 'http://localhost:8080/DamJS2.js';
+        s.src = 'http://localhost:8081/meld.js';
         s.onload = function() {
+             var s = d.createElement('script');
+            s.src = 'http://localhost:8081/DamJS2.js';
+            s.onload = function() {
+            };
+            d.head.appendChild(s);
         };
         d.head.appendChild(s);
     }
     d.head.appendChild(s);
-//            d.head.appendChild(s);
     });
 })();
 
+module = {exports: null};
 
-//(function(){
-//    var styles =
-//        '#reactive-table-overlay {\
-//          background: rgba(0, 0, 0, 0.7);\
-//          position: fixed;\
-//          width: 100%;\
-//          height: 100%;\
-//          top: 0;\
-//          left: 0;\
-//        }\
-//        #reactive-table-iframe {\
-//          width: 90%;\
-//          height: 90%;\
-//          padding: 5%;\
-//        }';
-//
-//    function $$(s) {
-//        return Array.prototype.slice.call(document.querySelectorAll(s));
-//    }
-//    function $(s) {
-//        return $$(s)[0];
-//    }
-//
-//    (function () {
-//        $$('table').forEach(function(table, idx) {
-//            var button = document.createElement('button');
-//            button.innerHTML = 'pop &#8599;';
-//            button.onclick = pop.bind(null, idx);
-//            table.parentNode.insertBefore(button, table);
-//        });
-//        var s = document.createElement('style');
-//        s.textContent = styles;
-//        document.head.appendChild(s);
-//    }());
-//
-//    function pop(id) {
-//        var overlay = document.createElement('div');
-//        overlay.id = 'reactive-table-overlay';
-//        overlay.onclick = function() {
-//            document.body.removeChild(overlay);
-//        };
-//
-//        var iframe = document.createElement('iframe');
-//        iframe.id = 'reactive-table-iframe';
-//        overlay.appendChild(iframe);
-//
-//        document.body.appendChild(overlay);
-//
-//        var w, d;
-//        setTimeout(function () {
-//            w = iframe.contentWindow;
-//            d = w.document;
-//            var s = d.createElement('script');
-//            s.src = 'http://fb.me/react-0.11.1.min.js';
-//            s.onload = function() {
-//                var s = d.createElement('script');
-//                s.src = 'http://localhost:8080/DamJS2.js';
-//                s.onload = populate;
-//                d.head.appendChild(s);
-//            }
-//            d.head.appendChild(s);
-//            s = d.createElement('style');
-//            s.textContent =
-//                'html{font-family:Arial;background:white}\
-//                td{border-top:1px solid black;padding:5px;cursor:cell}\
-//                th{padding:5px;cursor:pointer}\
-//                table{margin: 20px;border:1px solid black}\
-//                .tools{margin: 20px}\
-//                .tools button,.tools a{\
-//                  border-radius:3px;border: 1px solid black;color:black;\
-//                  background: #ddd;font:20px/24px Arial;\
-//                  margin-right: 5px;padding: 5px;text-decoration: none}';
-//            d.head.appendChild(s);
-//        }, 0);
-//
-//        function populate() {
-//            var headers, data;
-//            var table = $$('table')[id];
-//            var head = [].slice.call(table.getElementsByTagName('th'));
-//            if (!'0' in head) {
-//                head = [].slice.call(
-//                    table.getElementsByTagName('thead').getElementsByTagName('td'));
-//            }
-//            headers = head.reduce(function(res, th) {
-//                res.push(th.textContent);
-//                return res;
-//            }, []);
-//
-//            var body = [].slice.call(table.getElementsByTagName('tr'), 1);
-//            data = body.reduce(function(res, tr) {
-//                var tds = tr.getElementsByTagName('td'), row = [];
-//                for (var i = 0; i < tds.length; i++) {
-//                    row.push(tds[i].textContent);
-//                }
-//                res.push(row);
-//                return res;
-//            }, []);
-//
-//            var table = w.React.renderComponent(
-//                w.Table({
-//                    headers: headers,
-//                    data: data
-//                }), d.body);
-//        }
-//    }
-//
-//}());
+
+//DRAG AND DROP -- http://luke.breuer.com/tutorial/javascript-drag-and-drop-tutorial.aspx 
+
+var _startX = 0;            // mouse starting positions
+var _startY = 0;
+var _offsetX = 0;           // current element offset
+var _offsetY = 0;
+var _dragElement;           // needs to be passed from OnMouseDown to OnMouseMove
+var _oldZIndex = 0;         // we temporarily increase the z-index during drag
+
+function OnMouseDown(e)
+{
+    // IE is retarded and doesn't pass the event object
+    if (e == null) 
+        e = window.event; 
+    
+    // IE uses srcElement, others use target
+    var target = e.target != null ? e.target : e.srcElement;
+
+    // for IE, left click == 1
+    // for Firefox, left click == 0
+    if ((e.button == 1 && window.event != null || 
+        e.button == 0) && 
+        target.className == 'drag')
+    {
+        // grab the mouse position
+        _startX = e.clientX;
+        _startY = e.clientY;
+        
+        // grab the clicked element's position
+        _offsetX = ExtractNumber(target.style.left);
+        _offsetY = ExtractNumber(target.style.top);
+        
+        // bring the clicked element to the front while it is being dragged
+        _oldZIndex = target.style.zIndex;
+        target.style.zIndex = 10000;
+        
+        // we need to access the element in OnMouseMove
+        _dragElement = target;
+
+        // tell our code to start moving the element with the mouse
+        document.onmousemove = OnMouseMove;
+        
+        // cancel out any text selections
+        document.body.focus();
+
+        // prevent text selection in IE
+        document.onselectstart = function () { return false; };
+        // prevent IE from trying to drag an image
+        target.ondragstart = function() { return false; };
+        
+        // prevent text selection (except IE)
+        return false;
+    }
+}
+
+function OnMouseMove(e)
+{
+    if (e == null) 
+        var e = window.event; 
+
+    // this is the actual "drag code"
+    _dragElement.style.left = (_offsetX + e.clientX - _startX) + 'px';
+    _dragElement.style.top = (_offsetY + e.clientY - _startY) + 'px';
+}
+
+function OnMouseUp(e)
+{
+    if (_dragElement != null)
+    {
+        _dragElement.style.zIndex = _oldZIndex;
+
+        // we're done with these events until the next OnMouseDown
+        document.onmousemove = null;
+        document.onselectstart = null;
+        _dragElement.ondragstart = null;
+
+        // this is how we know we're not dragging      
+        _dragElement = null;
+    }
+}
+
+function ExtractNumber(value)
+{
+    var n = parseInt(value);
+    
+    return n == null || isNaN(n) ? 0 : n;
+}
+
+// this is simply a shortcut for the eyes and fingers
+function $(id)
+{
+    return document.getElementById(id);
+}
+
+function InitDragDrop()
+{
+    document.onmousedown = OnMouseDown;
+    document.onmouseup = OnMouseUp;
+}
+
+InitDragDrop();
