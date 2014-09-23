@@ -3,13 +3,13 @@
     w = window;
     d = w.document;
     var s = d.createElement('script');
-    s.src = 'http://fb.me/react-0.11.1.min.js';
+    s.src = 'http://localhost:8080/lib/react.min.js';
     s.onload = function() {
         var s = d.createElement('script');
-        s.src = 'http://localhost:8081/meld.js';
+        s.src = 'http://localhost:8080/meld.js';
         s.onload = function() {
              var s = d.createElement('script');
-            s.src = 'http://localhost:8081/DamJS2.js';
+            s.src = 'http://localhost:8080/DamJS2.js';
             s.onload = function() {
             };
             d.head.appendChild(s);

@@ -24,10 +24,30 @@ var DamJSElement = React.createClass({
 			padding: "5px",
 			paddingTop: "30px",
 			position: "relative",
-			width: "300px"
+			width: "300px",
+			zIndex: 100000
 		}
 		return React.DOM.div({style: divStyle, className: "drag"},
+			SubjectAdder({damJS: this.props.damJS}),
 			MatcherListElement({matchers: this.state.damJS.matchers}));
+	}
+})
+
+var SubjectAdder = React.createClass({
+	getInitialState: function() {
+		return {value: ""}
+	},
+	addSubject: function() {
+		this.props.damJS.addNewMatcher(this.state.value);
+	},
+	onInputChange: function(e){
+		this.setState({value:e.target.value});
+	},
+	render: function() {
+		return React.DOM.div(null,
+			React.DOM.input({value: this.state.value, onChange: this.onInputChange}),
+			React.DOM.button({onClick: this.addSubject}, "Add Subject")
+		)
 	}
 })
 
@@ -38,13 +58,13 @@ var MatcherListElement = React.createClass({
 	selectMatcher: function(matcher) {
 		this.setState({selectedMatcher: matcher});
 	},
-  render: function() {
+	render: function() {
 		var matchersList = [];
 		this.props.matchers.forEach(function(matcher) {
 			matchersList.push(MatcherElement({selectMatcher: this.selectMatcher, matcher: matcher}));
 		}.bind(this))
 
-		return React.DOM.div(null, 
+		return React.DOM.div(null,
 			React.DOM.div({style: listStyle}, matchersList),
 			CapturedPacketListElement({matcher: this.state.selectedMatcher})
 		);
@@ -61,15 +81,28 @@ var MatcherElement = React.createClass({
 });
 
 var CapturedPacketListElement = React.createClass({
-  render: function() {
-	var packetList = [];
-	if (this.props.matcher) {
-		this.props.matcher.joinPointsCached.forEach(function(joinPoint) {
-			packetList.push(CapturedPacketElement({joinPoint: joinPoint}));
-		})	
+	getInitialState: function() {
+		return {
+			matches: []
+		}
+	},
+	componentWillReceiveProps: function(props) {
+		if (this.props.matcher) {
+			this.props.matcher.clearReact();
+		}
+		if (props.matcher) {
+			props.matcher.setReact(this);
+		}
+	},
+	render: function() {
+		var packetList = [];
+		if (this.state.matches) {
+			this.state.matches.forEach(function(joinPoint) {
+				packetList.push(CapturedPacketElement({joinPoint: joinPoint}));
+			})
+		}
+		return React.DOM.div({style: listStyle}, packetList);
 	}
-	return React.DOM.div({style: listStyle}, packetList);
-  }
 });
 
 var CapturedPacketElement = React.createClass({
@@ -81,9 +114,22 @@ var CapturedPacketElement = React.createClass({
 function DamJSMatcher(matchString) {
 	this.joinPointsCached = [];
 	this.matchString = matchString;
+	this.react = null;
 }
 
 DamJSMatcher.prototype = {
+	setReact: function(react) {
+		this.react = react;
+		this.updateReact();
+	},
+	clearReact: function() {
+		this.react = null;
+	},
+	updateReact: function() {
+		if (this.react) {
+			this.react.setState({matches: this.joinPointsCached});
+		}
+	},
 	matches: function(joinPoint) {
 		if (joinPoint.target.getSubject().match(this.matchString)) {
 			return true;
@@ -92,15 +138,27 @@ DamJSMatcher.prototype = {
 	},
 	addJoinPoint: function(joinPoint) {
 		this.joinPointsCached.push(joinPoint);
+		this.updateReact();
 	}
 }
 
 function DamJS(meld) {
 	this.matchers = [];
 	this.setListeners(meld);
+	this.react = null;
 }
 
 DamJS.prototype = {
+	setReact: function(react) {
+		this.react = react;
+		this.updateReact();
+	},
+	clearReact: function() {
+		this.react = null;
+	},
+	updateReact: function() {
+
+	},
 	addNewMatcher: function(matchString) {
 		this.matchers.push(new DamJSMatcher(matchString));
 		this.update();
@@ -121,12 +179,12 @@ DamJS.prototype = {
 
 		meld.around(
 			caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
-				debugger;
+				//debugger;
 		}.bind(this));
 
 		meld.around(
 			caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
-				debugger;
+				//debugger;
 				this.matchers.forEach(function(matcher) {
 					if (matcher.matches(joinPoint)) {
 						matcher.addJoinPoint(joinPoint);
