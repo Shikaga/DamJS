@@ -66,10 +66,78 @@ var MatcherListElement = React.createClass({
 
 		return React.DOM.div(null,
 			React.DOM.div({style: listStyle}, matchersList),
+			MatcherConfigElement({matcher: this.state.selectedMatcher}),
 			CapturedPacketListElement({matcher: this.state.selectedMatcher})
 		);
   }
 });
+
+var MatcherFilterButton = React.createClass({
+	getInitialState: function() {
+		return {
+			style: {backgroundColor: "green"},
+			openOrFiltered: "Open"
+		}
+	},
+	toggleFilter: function() {
+		this.props.toggleFilter();
+		this.setFiltered()
+	},
+	setFiltered: function() {
+		if (this.props.isFiltered())  {
+			this.setState({
+				style: {backgroundColor: "red"},
+				openOrFiltered: "Filtered"
+			});
+		} else {
+			this.setState({
+				style: {backgroundColor: "green"},
+				openOrFiltered: "Open"
+			});
+		}
+
+	},
+	render: function() {
+		return React.DOM.button({onClick: this.toggleFilter, style: this.state.style}, this.props.buttonLabel + " " + this.state.openOrFiltered);
+	}
+})
+
+var MatcherFilterIncomingButton = React.createClass({
+	isFiltered: function() {
+		return this.props.matcher.isIncomingFiltered();
+	},
+	toggleFilter: function() {
+		this.props.matcher.toggleIncoming();
+	},
+	render: function() {
+		return MatcherFilterButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Incoming"})
+	}
+})
+
+var MatcherFilterOutgoingButton = React.createClass({
+	isFiltered: function() {
+		return this.props.matcher.isOutgoingFiltered();
+	},
+	toggleFilter: function() {
+		this.props.matcher.toggleOutgoing();
+	},
+	render: function() {
+		return MatcherFilterButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Outgoing"})
+	}
+})
+
+var MatcherConfigElement = React.createClass({
+	render: function() {
+		if (this.props.matcher) {
+			return React.DOM.div(null,
+				MatcherFilterIncomingButton({matcher: this.props.matcher}),
+				MatcherFilterOutgoingButton({matcher: this.props.matcher})
+			);
+		} else {
+			return React.DOM.div();
+		}
+	}
+})
 
 var MatcherElement = React.createClass({
 	selectMatcher: function() {
@@ -115,6 +183,8 @@ function DamJSMatcher(matchString) {
 	this.joinPointsCached = [];
 	this.matchString = matchString;
 	this.react = null;
+	this.filterIncoming = false;
+	this.filterOutgoing = false;
 }
 
 DamJSMatcher.prototype = {
@@ -129,6 +199,20 @@ DamJSMatcher.prototype = {
 		if (this.react) {
 			this.react.setState({matches: this.joinPointsCached});
 		}
+	},
+	toggleOutgoing: function() {
+		this.filterOutgoing = !this.filterOutgoing;
+		return this.filterOutgoing;
+	},
+	toggleIncoming: function() {
+		this.filterIncoming = !this.filterIncoming;
+		return this.filterIncoming;
+	},
+	isOutgoingFiltered: function() {
+		return this.filterOutgoing;
+	},
+	isIncomingFiltered: function() {
+		return this.filterIncoming;
 	},
 	matches: function(joinPoint) {
 		if (joinPoint.target.getSubject().match(this.matchString)) {
