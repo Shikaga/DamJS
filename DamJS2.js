@@ -172,27 +172,30 @@ DamJS.prototype = {
 		this.listener = fn;
 	},
 	setListeners: function(meld) {
-		meld.around(
-			caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
-				joinPoint.proceed();
-		}.bind(this));
+		if (typeof caplin !== "undefined" && typeof caplin.streamlink !== "undefined") {
+			meld.around(
+				caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
+					joinPoint.proceed();
+				}.bind(this));
 
-		meld.around(
-			caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
-				//debugger;
-		}.bind(this));
+			meld.around(
+				caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
+					//debugger;
+				}.bind(this));
 
-		meld.around(
-			caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
-				//debugger;
-				this.matchers.forEach(function(matcher) {
-					if (matcher.matches(joinPoint)) {
-						matcher.addJoinPoint(joinPoint);
-					}
-				}.bind(this))
-				joinPoint.proceed();
-			}.bind(this)
-		)
+			meld.around(
+				caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
+					//debugger;
+					this.matchers.forEach(function(matcher) {
+						if (matcher.matches(joinPoint)) {
+							matcher.addJoinPoint(joinPoint);
+						}
+					}.bind(this))
+					joinPoint.proceed();
+				}.bind(this)
+			)
+		}
+
 	}
 }
 
