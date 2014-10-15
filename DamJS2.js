@@ -75,7 +75,7 @@ var MatcherListElement = React.createClass({
 var MatcherFilterButton = React.createClass({
 	getInitialState: function() {
 		return {
-			style: {backgroundColor: "green"},
+			style: {backgroundColor: "lightgreen"},
 			openOrFiltered: "Open"
 		}
 	},
@@ -86,16 +86,15 @@ var MatcherFilterButton = React.createClass({
 	setFiltered: function() {
 		if (this.props.isFiltered())  {
 			this.setState({
-				style: {backgroundColor: "red"},
+				style: {backgroundColor: "pink"},
 				openOrFiltered: "Filtered"
 			});
 		} else {
 			this.setState({
-				style: {backgroundColor: "green"},
+				style: {backgroundColor: "lightgreen"},
 				openOrFiltered: "Open"
 			});
 		}
-
 	},
 	render: function() {
 		return React.DOM.button({onClick: this.toggleFilter, style: this.state.style}, this.props.buttonLabel + " " + this.state.openOrFiltered);
