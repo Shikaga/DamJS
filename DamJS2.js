@@ -147,7 +147,7 @@ var MatcherFilterIncomingButton = React.createClass({
 		return this.props.matcher.isIncomingFiltered();
 	},
 	toggleFilter: function() {
-		this.props.matcher.toggleIncoming();
+		this.props.matcher.toggleIncomingFilter();
 	},
 	render: function() {
 		return MatcherButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Filter Incoming"})
@@ -159,7 +159,7 @@ var MatcherFilterOutgoingButton = React.createClass({
 		return this.props.matcher.isOutgoingFiltered();
 	},
 	toggleFilter: function() {
-		this.props.matcher.toggleOutgoing();
+		this.props.matcher.toggleOutgoingFilter();
 	},
 	render: function() {
 		return MatcherButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Filter Outgoing"})
@@ -168,11 +168,10 @@ var MatcherFilterOutgoingButton = React.createClass({
 
 var MatcherInjectIncomingButton = React.createClass({
 	isFiltered: function() {
-		return false;
-		//return this.props.matcher.isIncomingFiltered();
+		return this.props.matcher.isIncomingInjected();
 	},
 	toggleFilter: function() {
-		//this.props.matcher.toggleIncoming();
+		this.props.matcher.toggleIncomingInjection();
 	},
 	render: function() {
 		return MatcherButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Inject Incoming"})
@@ -181,37 +180,34 @@ var MatcherInjectIncomingButton = React.createClass({
 
 var MatcherInjectOutgoingButton = React.createClass({
 	isFiltered: function() {
-		return false;
-		//return this.props.matcher.isOutgoingFiltered();
+		return this.props.matcher.isOutgoingInjected();
 	},
 	toggleFilter: function() {
-		//this.props.matcher.toggleOutgoing();
+		this.props.matcher.toggleOutgoingInjection();
 	},
 	render: function() {
 		return MatcherButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Inject Outgoing"})
 	}
 })
 
-var MatcherConsolerIncomingButton = React.createClass({
+var MatcherLoggerIncomingButton = React.createClass({
 	isFiltered: function() {
-		return false;
-		//return this.props.matcher.isIncomingFiltered();
+		return this.props.matcher.isIncomingLogged();
 	},
 	toggleFilter: function() {
-		//this.props.matcher.toggleIncoming();
+		this.props.matcher.toggleIncomingLogging();
 	},
 	render: function() {
 		return MatcherButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Log Incoming"})
 	}
 })
 
-var MatcherConsolerOutgoingButton = React.createClass({
+var MatcherLoggerOutgoingButton = React.createClass({
 	isFiltered: function() {
-		return false;
-		//return this.props.matcher.isOutgoingFiltered();
+		return this.props.matcher.isOutgoingLogged();
 	},
 	toggleFilter: function() {
-		//this.props.matcher.toggleOutgoing();
+		this.props.matcher.toggleOutgoingLogging();
 	},
 	render: function() {
 		return MatcherButton({isFiltered: this.isFiltered,toggleFilter: this.toggleFilter, buttonLabel: "Log Outgoing"})
@@ -231,8 +227,8 @@ var MatcherConfigElement = React.createClass({
 					MatcherInjectOutgoingButton({matcher: this.props.matcher})
 				),
 				React.DOM.div(null,
-					MatcherConsolerIncomingButton({matcher: this.props.matcher}),
-					MatcherConsolerOutgoingButton({matcher: this.props.matcher})
+					MatcherLoggerIncomingButton({matcher: this.props.matcher}),
+					MatcherLoggerOutgoingButton({matcher: this.props.matcher})
 				)
 			);
 		} else {
@@ -287,6 +283,10 @@ function DamJSMatcher(matchString) {
 	this.reacts = [];
 	this.filterIncoming = false;
 	this.filterOutgoing = false;
+	this.injectIncoming = false;
+	this.injectOutgoing = false;
+	this.logIncoming = false;
+	this.logOutgoing = false;
 	this.injectionFields = [{},{}]
 	this.rand = Math.random();
 }
@@ -308,19 +308,47 @@ DamJSMatcher.prototype = {
 			react.setState({injectionFields: this.injectionFields});
 		}.bind(this))
 	},
-	toggleOutgoing: function() {
+	toggleIncomingFilter: function() {
+		this.filterIncoming = !this.filterIncoming;
+		return this.filterIncoming;
+	},
+	toggleOutgoingFilter: function() {
 		this.filterOutgoing = !this.filterOutgoing;
 		return this.filterOutgoing;
 	},
-	toggleIncoming: function() {
-		this.filterIncoming = !this.filterIncoming;
+	isIncomingFiltered: function() {
 		return this.filterIncoming;
 	},
 	isOutgoingFiltered: function() {
 		return this.filterOutgoing;
 	},
-	isIncomingFiltered: function() {
-		return this.filterIncoming;
+	toggleIncomingInjection: function() {
+		this.injectIncoming = !this.injectIncoming;
+		return this.injectIncoming;
+	},
+	toggleOutgoingInjection: function() {
+		this.injectOutgoing = !this.injectOutgoing;
+		return this.injectOutgoing;
+	},
+	isIncomingInjected: function() {
+		return this.injectIncoming;
+	},
+	isOutgoingInjected: function() {
+		return this.injectOutgoing;
+	},
+	toggleIncomingLogging: function() {
+		this.logIncoming = !this.logIncoming;
+		return this.logIncoming;
+	},
+	toggleOutgoingLogging: function() {
+		this.logOutgoing = !this.logOutgoing;
+		return this.logOutgoing;
+	},
+	isIncomingLogged: function() {
+		return this.logIncoming;
+	},
+	isOutgoingLogged: function() {
+		return this.logOutgoing;
 	},
 	addInjectionField: function() {
 		this.injectionFields.push({});
