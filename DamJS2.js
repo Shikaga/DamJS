@@ -7,7 +7,7 @@ var listStyle = {
 
 var InjectorRowElement = React.createClass({
 	render: function() {
-		return React.DOM.div(null, React.DOM.input(null),React.DOM.input(null), React.DOM.button({},"Delete"));
+		return React.DOM.div(null, React.DOM.input(null),React.DOM.input(null)); //React.DOM.button({},"Delete")
 	}
 })
 
@@ -23,19 +23,29 @@ var InjectorConfigElement = React.createClass({
 			props.matcher.setReact(this);
 		}
 	},
-	addRow: function() {
-		this.props.matcher.addInjectionField();
+	addIncomingRow: function() {
+		this.props.matcher.addIncomingInjectionField();
+	},
+	addOutgoingRow: function() {
+		this.props.matcher.addOutgoingInjectionField();
 	},
 	render: function() {
 		if (this.props.matcher) {
-			var rows = [];
-			this.state.injectionFields.forEach(function() {
-				rows.push(InjectorRowElement());
+			var incomingRows = [];
+			var outgoingRows = [];
+			this.state.incomingInjectionFields.forEach(function() {
+				incomingRows.push(InjectorRowElement());
+			});
+			this.state.outgoingInjectionFields.forEach(function() {
+				outgoingRows.push(InjectorRowElement());
 			});
 			return React.DOM.div(null,
-				"Inject Element",
-				rows,
-				React.DOM.button({onClick: this.addRow}, "Add Row"));
+				"Inject Incoming Elements",
+				incomingRows,
+				React.DOM.button({onClick: this.addIncomingRow}, "Add Incoming Row"),
+				"Inject Outgoing Elements",
+				outgoingRows,
+				React.DOM.button({onClick: this.addOutgoingRow}, "Add Outgoing Row"));
 		} else {
 			return React.DOM.div();
 		}
@@ -286,8 +296,9 @@ function DamJSMatcher(matchString) {
 	this.injectIncoming = false;
 	this.injectOutgoing = false;
 	this.logIncoming = false;
-	this.logOutgoing = false;
-	this.injectionFields = [{}]
+	this.logOutgoing = false;;
+	this.incomingInjectionFields = [{}];
+	this.outgoingInjectionFields = [{}];
 }
 
 DamJSMatcher.prototype = {
@@ -304,7 +315,9 @@ DamJSMatcher.prototype = {
 	updateReact: function() {
 		this.reacts.forEach(function(react) {
 			react.setState({matches: this.joinPointsCached});
-			react.setState({injectionFields: this.injectionFields});
+			console.log(this.incomingInjectionFields.length);
+			react.setState({incomingInjectionFields: this.incomingInjectionFields});
+			react.setState({outgoingInjectionFields: this.outgoingInjectionFields});
 		}.bind(this))
 	},
 	toggleIncomingFilter: function() {
@@ -349,8 +362,12 @@ DamJSMatcher.prototype = {
 	isOutgoingLogged: function() {
 		return this.logOutgoing;
 	},
-	addInjectionField: function() {
-		this.injectionFields.push({});
+	addIncomingInjectionField: function() {
+		this.incomingInjectionFields.push({});
+		this.updateReact();
+	},
+	addOutgoingInjectionField: function() {
+		this.outgoingInjectionFields.push({});
 		this.updateReact();
 	},
 	matches: function(joinPoint) {
