@@ -395,6 +395,14 @@ DamJS.prototype = {
 	onUpdate: function(fn) {
 		this.listener = fn;
 	},
+	handleUpdate: function(joinPoint) {
+		this.matchers.forEach(function(matcher) {
+			if (matcher.matches(joinPoint) && matcher.filterIncoming) {
+				matcher.addJoinPoint(joinPoint);
+			}
+		}.bind(this))
+		joinPoint.proceed();
+	},
 	setListeners: function(meld) {
 		if (typeof caplin !== "undefined" && typeof caplin.streamlink !== "undefined") {
 			meld.around(
@@ -406,16 +414,9 @@ DamJS.prototype = {
 				caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
 					//debugger;
 				}.bind(this));
-
 			meld.around(
 				caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
-					//debugger;
-					this.matchers.forEach(function(matcher) {
-						if (matcher.matches(joinPoint)) {
-							matcher.addJoinPoint(joinPoint);
-						}
-					}.bind(this))
-					joinPoint.proceed();
+					this.handleUpdate(joinPoint);
 				}.bind(this)
 			)
 		}
