@@ -46,8 +46,8 @@ var DamJSElement = React.createClass({
 	getInitialState: function() {
 		this.props.damJS.onUpdate(function() {
 			this.setState({
-					damJS: this.props.damJS
-				})
+				damJS: this.props.damJS
+			})
 		}.bind(this))
 		return {
 			damJS: this.props.damJS
@@ -287,8 +287,7 @@ function DamJSMatcher(matchString) {
 	this.injectOutgoing = false;
 	this.logIncoming = false;
 	this.logOutgoing = false;
-	this.injectionFields = [{},{}]
-	this.rand = Math.random();
+	this.injectionFields = [{}]
 }
 
 DamJSMatcher.prototype = {
