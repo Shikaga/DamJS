@@ -416,9 +416,19 @@ DamJSMatcher.prototype = {
 		this.updateReact();
 	},
 	matches: function(joinPoint) {
-		if (joinPoint.target.getSubject().match(this.matchString)) {
-			return true;
+		function isIncoming() {
+			return joinPoint.target.getSubject
 		}
+		if (isIncoming()) {
+			if (joinPoint.target.getSubject().match(this.matchString)) {
+				return true;
+			}
+		} else {
+			if (joinPoint.args[0].match(this.matchString)) {
+				return true;
+			}
+		}
+
 		return false;
 	},
 	addJoinPoint: function(joinPoint) {
@@ -461,8 +471,10 @@ DamJS.prototype = {
 			joinPoint.target._fields[injectionObj.keyValue] = injectionObj.fieldValue;
 		})
 	},
-	handleLogIncoming: function(joinPoint) {
-		console.log(joinPoint.target.getSubject(), joinPoint.target.getFields())
+	handleInjectOutgoing: function(matcher, joinPoint) {
+		matcher.incomingInjectionFields.forEach(function(injectionObj) {
+			joinPoint.args[1][injectionObj.keyValue] = injectionObj.fieldValue;
+		})
 	},
 	handleUpdate: function(joinPoint) {
 		this.matchers.forEach(function(matcher) {
@@ -474,10 +486,23 @@ DamJS.prototype = {
 					matcher.addJoinPoint(joinPoint);
 				}
 				if (matcher.logIncoming) {
-					this.handleLogIncoming(joinPoint)
+					console.log("Incoming:", joinPoint.target.getSubject(), joinPoint.target.getFields());
 				}
 			}
 		}.bind(this))
+		joinPoint.proceed();
+	},
+	handlePublish: function(joinPoint) {
+		this.matchers.forEach(function(matcher) {
+			if (matcher.matches(joinPoint)) {
+				if (matcher.injectOutgoing) {
+					this.handleInjectOutgoing(matcher, joinPoint);
+				}
+				if (matcher.logOutgoing) {
+					console.log("Outgoing:", joinPoint.args[0], joinPoint.args[1])
+				}
+			}
+		}.bind(this));
 		joinPoint.proceed();
 	},
 	setListeners: function(meld) {
@@ -489,7 +514,7 @@ DamJS.prototype = {
 
 			meld.around(
 				caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
-					//debugger;
+					this.handlePublish(joinPoint);
 				}.bind(this));
 			meld.around(
 				caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
@@ -505,6 +530,7 @@ var damJS = new DamJS(module.exports);
 damJS.addNewMatcher("/FX/EURUSD");
 damJS.addNewMatcher("/FX/GBPUSD");
 damJS.addNewMatcher("/FX/USDJPY");
+damJS.addNewMatcher("/PRIVATE/TRADE/FX");
 
 var newElement = document.createElement('div');
 document.body.appendChild(newElement);
