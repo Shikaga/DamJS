@@ -5,6 +5,11 @@ var listStyle = {
 	margin: "5px"
 }
 
+var columnStyle = {
+	width: "300px",
+	float: "left"
+}
+
 var InjectorRowElement = React.createClass({
 	render: function() {
 		return React.DOM.div(null, React.DOM.input(null),React.DOM.input(null)); //React.DOM.button({},"Delete")
@@ -13,7 +18,10 @@ var InjectorRowElement = React.createClass({
 
 var InjectorConfigElement = React.createClass({
 	getInitialState: function() {
-		return {injectionFields: []}
+		return {
+			incomingInjectionFields: [],
+			outgoingInjectionFields: []
+		}
 	},
 	componentWillReceiveProps: function(props) {
 		if (this.props.matcher) {
@@ -29,16 +37,34 @@ var InjectorConfigElement = React.createClass({
 	addOutgoingRow: function() {
 		this.props.matcher.addOutgoingInjectionField();
 	},
+	onIncomingFieldChange: function(e) {
+		this.props.matcher.updateIncomingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+	},
+	onIncomingKeyChange: function(e) {
+		this.props.matcher.updateIncomingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+	},
+	onOutgoingFieldChange: function(e) {
+		this.props.matcher.updateOutgoingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+	},
+	onOutgoingKeyChange: function(e) {
+		this.props.matcher.updateOutgoingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+	},
 	render: function() {
 		if (this.props.matcher) {
 			var incomingRows = [];
 			var outgoingRows = [];
-			this.state.incomingInjectionFields.forEach(function() {
-				incomingRows.push(InjectorRowElement());
-			});
-			this.state.outgoingInjectionFields.forEach(function() {
-				outgoingRows.push(InjectorRowElement());
-			});
+			for (var i=0; i < this.state.incomingInjectionFields.length; i++) {
+				incomingRows.push(React.DOM.div(null,
+					React.DOM.input({data:i, onChange: this.onIncomingKeyChange, value: this.state.incomingInjectionFields[i].keyValue}),
+					React.DOM.input({data:i, onChange: this.onIncomingFieldChange, value: this.state.incomingInjectionFields[i].fieldValue})
+				));//InjectorRowElement());
+			}
+			for (var i=0; i < this.state.outgoingInjectionFields.length; i++) {
+				outgoingRows.push(React.DOM.div(null,
+					React.DOM.input({data:i, onChange: this.onOutgoingKeyChange, value: this.state.outgoingInjectionFields[i].keyValue}),
+					React.DOM.input({data:i, onChange: this.onOutgoingFieldChange, value: this.state.outgoingInjectionFields[i].fieldValue})
+				));//InjectorRowElement());
+			}
 			return React.DOM.div(null,
 				"Inject Incoming Elements",
 				incomingRows,
@@ -106,16 +132,19 @@ var MatcherListElement = React.createClass({
 		this.setState({selectedMatcher: matcher});
 	},
 	render: function() {
+		var style = {
+			width: "1250px"
+		}
 		var matchersList = [];
 		this.props.matchers.forEach(function(matcher) {
 			matchersList.push(MatcherElement({selectMatcher: this.selectMatcher, matcher: matcher}));
 		}.bind(this))
 
-		return React.DOM.div(null,
-			React.DOM.div({style: listStyle}, matchersList),
-			MatcherConfigElement({matcher: this.state.selectedMatcher}),
-			InjectorConfigElement({matcher: this.state.selectedMatcher}),
-			CapturedPacketListElement({matcher: this.state.selectedMatcher})
+		return React.DOM.div({style: style},
+			React.DOM.div({style: columnStyle}, matchersList),
+			React.DOM.div({style: columnStyle}, MatcherConfigElement({matcher: this.state.selectedMatcher})),
+			React.DOM.div({style: columnStyle}, InjectorConfigElement({matcher: this.state.selectedMatcher})),
+			React.DOM.div({style: columnStyle}, CapturedPacketListElement({matcher: this.state.selectedMatcher}))
 		);
   }
 });
@@ -277,7 +306,7 @@ var CapturedPacketListElement = React.createClass({
 				packetList.push(CapturedPacketElement({joinPoint: joinPoint}));
 			})
 		}
-		return React.DOM.div({style: listStyle}, packetList);
+		return React.DOM.div(null, packetList);
 	}
 });
 
@@ -297,8 +326,8 @@ function DamJSMatcher(matchString) {
 	this.injectOutgoing = false;
 	this.logIncoming = false;
 	this.logOutgoing = false;;
-	this.incomingInjectionFields = [{}];
-	this.outgoingInjectionFields = [{}];
+	this.incomingInjectionFields = [{fieldValue: "", keyValue: ""}];
+	this.outgoingInjectionFields = [{fieldValue: "", keyValue: ""}];
 }
 
 DamJSMatcher.prototype = {
@@ -315,7 +344,6 @@ DamJSMatcher.prototype = {
 	updateReact: function() {
 		this.reacts.forEach(function(react) {
 			react.setState({matches: this.joinPointsCached});
-			console.log(this.incomingInjectionFields.length);
 			react.setState({incomingInjectionFields: this.incomingInjectionFields});
 			react.setState({outgoingInjectionFields: this.outgoingInjectionFields});
 		}.bind(this))
@@ -368,6 +396,22 @@ DamJSMatcher.prototype = {
 	},
 	addOutgoingInjectionField: function() {
 		this.outgoingInjectionFields.push({});
+		this.updateReact();
+	},
+	updateIncomingInjectionField: function(row, value) {
+		this.incomingInjectionFields[row].fieldValue = value;
+		this.updateReact();
+	},
+	updateIncomingInjectionValue: function(row, value) {
+		this.incomingInjectionFields[row].keyValue = value;
+		this.updateReact();
+	},
+	updateOutgoingInjectionField: function(row, value) {
+		this.outgoingInjectionFields[row].fieldValue = value;
+		this.updateReact();
+	},
+	updateOutgoingInjectionValue: function(row, value) {
+		this.outgoingInjectionFields[row].keyValue = value;
 		this.updateReact();
 	},
 	matches: function(joinPoint) {
