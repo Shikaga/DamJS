@@ -7,7 +7,8 @@ var listStyle = {
 
 var columnStyle = {
 	width: "300px",
-	float: "left"
+	float: "left",
+	backgroundColor: "white"
 }
 
 var InjectorRowElement = React.createClass({
@@ -41,13 +42,13 @@ var InjectorConfigElement = React.createClass({
 		this.props.matcher.updateIncomingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
 	},
 	onIncomingKeyChange: function(e) {
-		this.props.matcher.updateIncomingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+		this.props.matcher.updateIncomingInjectionValue(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
 	},
 	onOutgoingFieldChange: function(e) {
 		this.props.matcher.updateOutgoingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
 	},
 	onOutgoingKeyChange: function(e) {
-		this.props.matcher.updateOutgoingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+		this.props.matcher.updateOutgoingInjectionValue(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
 	},
 	render: function() {
 		if (this.props.matcher) {
@@ -455,10 +456,26 @@ DamJS.prototype = {
 	onUpdate: function(fn) {
 		this.listener = fn;
 	},
+	handleInjectIncoming: function(matcher, joinPoint) {
+		matcher.incomingInjectionFields.forEach(function(injectionObj) {
+			joinPoint.target._fields[injectionObj.keyValue] = injectionObj.fieldValue;
+		})
+	},
+	handleLogIncoming: function(joinPoint) {
+		console.log(joinPoint.target.getSubject(), joinPoint.target.getFields())
+	},
 	handleUpdate: function(joinPoint) {
 		this.matchers.forEach(function(matcher) {
-			if (matcher.matches(joinPoint) && matcher.filterIncoming) {
-				matcher.addJoinPoint(joinPoint);
+			if (matcher.matches(joinPoint)) {
+				if (matcher.injectIncoming) {
+					this.handleInjectIncoming(matcher, joinPoint);
+				}
+				if (matcher.filterIncoming) {
+					matcher.addJoinPoint(joinPoint);
+				}
+				if (matcher.logIncoming) {
+					this.handleLogIncoming(joinPoint)
+				}
 			}
 		}.bind(this))
 		joinPoint.proceed();
