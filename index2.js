@@ -111,12 +111,6 @@ function ExtractNumber(value)
     return n == null || isNaN(n) ? 0 : n;
 }
 
-// this is simply a shortcut for the eyes and fingers
-function $(id)
-{
-    return document.getElementById(id);
-}
-
 function InitDragDrop()
 {
     document.onmousedown = OnMouseDown;
