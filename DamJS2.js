@@ -38,17 +38,17 @@ var InjectorConfigElement = React.createClass({
 	addOutgoingRow: function() {
 		this.props.matcher.addOutgoingInjectionField();
 	},
-	onIncomingFieldChange: function(e) {
-		this.props.matcher.updateIncomingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
-	},
-	onIncomingKeyChange: function(e) {
+	onIncomingValueChange: function(e) {
 		this.props.matcher.updateIncomingInjectionValue(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
 	},
-	onOutgoingFieldChange: function(e) {
-		this.props.matcher.updateOutgoingInjectionField(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+	onIncomingKeyChange: function(e) {
+		this.props.matcher.updateIncomingInjectionKey(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+	},
+	onOutgoingValueChange: function(e) {
+		this.props.matcher.updateOutgoingInjectionValue(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
 	},
 	onOutgoingKeyChange: function(e) {
-		this.props.matcher.updateOutgoingInjectionValue(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
+		this.props.matcher.updateOutgoingInjectionKey(Number.parseInt(e.target.attributes.getNamedItem('data').value), e.target.value);
 	},
 	render: function() {
 		if (this.props.matcher) {
@@ -57,13 +57,13 @@ var InjectorConfigElement = React.createClass({
 			for (var i=0; i < this.state.incomingInjectionFields.length; i++) {
 				incomingRows.push(React.DOM.div(null,
 					React.DOM.input({data:i, onChange: this.onIncomingKeyChange, value: this.state.incomingInjectionFields[i].keyValue}),
-					React.DOM.input({data:i, onChange: this.onIncomingFieldChange, value: this.state.incomingInjectionFields[i].fieldValue})
+					React.DOM.input({data:i, onChange: this.onIncomingValueChange, value: this.state.incomingInjectionFields[i].fieldValue})
 				));//InjectorRowElement());
 			}
 			for (var i=0; i < this.state.outgoingInjectionFields.length; i++) {
 				outgoingRows.push(React.DOM.div(null,
 					React.DOM.input({data:i, onChange: this.onOutgoingKeyChange, value: this.state.outgoingInjectionFields[i].keyValue}),
-					React.DOM.input({data:i, onChange: this.onOutgoingFieldChange, value: this.state.outgoingInjectionFields[i].fieldValue})
+					React.DOM.input({data:i, onChange: this.onOutgoingValueChange, value: this.state.outgoingInjectionFields[i].fieldValue})
 				));//InjectorRowElement());
 			}
 			return React.DOM.div(null,
@@ -399,19 +399,19 @@ DamJSMatcher.prototype = {
 		this.outgoingInjectionFields.push({});
 		this.updateReact();
 	},
-	updateIncomingInjectionField: function(row, value) {
+	updateIncomingInjectionValue: function(row, value) {
 		this.incomingInjectionFields[row].fieldValue = value;
 		this.updateReact();
 	},
-	updateIncomingInjectionValue: function(row, value) {
+	updateIncomingInjectionKey: function(row, value) {
 		this.incomingInjectionFields[row].keyValue = value;
 		this.updateReact();
 	},
-	updateOutgoingInjectionField: function(row, value) {
+	updateOutgoingInjectionValue: function(row, value) {
 		this.outgoingInjectionFields[row].fieldValue = value;
 		this.updateReact();
 	},
-	updateOutgoingInjectionValue: function(row, value) {
+	updateOutgoingInjectionKey: function(row, value) {
 		this.outgoingInjectionFields[row].keyValue = value;
 		this.updateReact();
 	},
