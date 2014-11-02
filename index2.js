@@ -27,217 +27,21 @@
 		var s = d.createElement('script');
 		s.src = 'http://localhost:8080/lib/require.js';
 		s.onload = function() {
-			require(['lib/react', 'Example'], function(React, Example) {
-
-				function DamJSMatcher(matchString) {
-					this.joinPointsCached = [];
-					this.matchString = matchString;
-					this.reacts = [];
-					this.filterIncoming = false;
-					this.filterOutgoing = false;
-					this.injectIncoming = false;
-					this.injectOutgoing = false;
-					this.logIncoming = false;
-					this.logOutgoing = false;;
-					this.incomingInjectionFields = [{fieldValue: "", keyValue: ""}];
-					this.outgoingInjectionFields = [{fieldValue: "", keyValue: ""}];
+			require(['lib/react', 'DamJSElement', 'DamJS'], function(React, DamJSElement, DamJS) {
+				listStyle = {
+					border: "1px solid lightgrey",
+					borderRadius: "5px",
+					padding: "5px",
+					margin: "5px"
 				}
 
-				DamJSMatcher.prototype = {
-					setReact: function(listener) {
-						this.reacts.push(listener)
-						this.updateReact();
-					},
-					clearReact: function(listener) {
-						var listenerIndex = this.reacts.indexOf(listener);
-						if (listenerIndex) {
-							this.reacts.slice(listenerIndex,1);
-						}
-					},
-					updateReact: function() {
-						this.reacts.forEach(function(react) {
-							if (react._lifeCycleState !== "UNMOUNTED") {
-								react.setState({matches: this.joinPointsCached});
-								react.setState({incomingInjectionFields: this.incomingInjectionFields});
-								react.setState({outgoingInjectionFields: this.outgoingInjectionFields});
-							}
-						}.bind(this))
-					},
-					toggleIncomingFilter: function() {
-						this.filterIncoming = !this.filterIncoming;
-						return this.filterIncoming;
-					},
-					toggleOutgoingFilter: function() {
-						this.filterOutgoing = !this.filterOutgoing;
-						return this.filterOutgoing;
-					},
-					isIncomingFiltered: function() {
-						return this.filterIncoming;
-					},
-					isOutgoingFiltered: function() {
-						return this.filterOutgoing;
-					},
-					toggleIncomingInjection: function() {
-						this.injectIncoming = !this.injectIncoming;
-						return this.injectIncoming;
-					},
-					toggleOutgoingInjection: function() {
-						this.injectOutgoing = !this.injectOutgoing;
-						return this.injectOutgoing;
-					},
-					isIncomingInjected: function() {
-						return this.injectIncoming;
-					},
-					isOutgoingInjected: function() {
-						return this.injectOutgoing;
-					},
-					toggleIncomingLogging: function() {
-						this.logIncoming = !this.logIncoming;
-						return this.logIncoming;
-					},
-					toggleOutgoingLogging: function() {
-						this.logOutgoing = !this.logOutgoing;
-						return this.logOutgoing;
-					},
-					isIncomingLogged: function() {
-						return this.logIncoming;
-					},
-					isOutgoingLogged: function() {
-						return this.logOutgoing;
-					},
-					addIncomingInjectionField: function() {
-						this.incomingInjectionFields.push({});
-						this.updateReact();
-					},
-					addOutgoingInjectionField: function() {
-						this.outgoingInjectionFields.push({});
-						this.updateReact();
-					},
-					updateIncomingInjectionValue: function(row, value) {
-						this.incomingInjectionFields[row].fieldValue = value;
-						this.updateReact();
-					},
-					updateIncomingInjectionKey: function(row, value) {
-						this.incomingInjectionFields[row].keyValue = value;
-						this.updateReact();
-					},
-					updateOutgoingInjectionValue: function(row, value) {
-						this.outgoingInjectionFields[row].fieldValue = value;
-						this.updateReact();
-					},
-					updateOutgoingInjectionKey: function(row, value) {
-						this.outgoingInjectionFields[row].keyValue = value;
-						this.updateReact();
-					},
-					matches: function(joinPoint) {
-						function isIncoming() {
-							return joinPoint.target.getSubject
-						}
-						if (isIncoming()) {
-							if (joinPoint.target.getSubject().match(this.matchString)) {
-								return true;
-							}
-						} else {
-							if (joinPoint.args[0].match(this.matchString)) {
-								return true;
-							}
-						}
-
-						return false;
-					},
-					addJoinPoint: function(joinPoint) {
-						this.joinPointsCached.push(joinPoint);
-						this.updateReact();
-					}
-				}
-
-				function DamJS(meld) {
-					this.matchers = [];
-					this.setListeners(meld);
-					this.react = null;
-				}
-
-				DamJS.prototype = {
-					setReact: function(react) {
-						this.react = react;
-						this.updateReact();
-					},
-					clearReact: function() {
-						this.react = null;
-					},
-					updateReact: function() {
-
-					},
-					addNewMatcher: function(matchString) {
-						this.matchers.push(new DamJSMatcher(matchString));
-						this.update();
-					},
-					update: function() {
-						if (this.listener) {
-							this.listener();
-						}
-					},
-					onUpdate: function(fn) {
-						this.listener = fn;
-					},
-					handleInjectIncoming: function(matcher, joinPoint) {
-						matcher.incomingInjectionFields.forEach(function(injectionObj) {
-							joinPoint.target._fields[injectionObj.keyValue] = injectionObj.fieldValue;
-						})
-					},
-					handleInjectOutgoing: function(matcher, joinPoint) {
-						matcher.incomingInjectionFields.forEach(function(injectionObj) {
-							joinPoint.args[1][injectionObj.keyValue] = injectionObj.fieldValue;
-						})
-					},
-					handleUpdate: function(joinPoint) {
-						this.matchers.forEach(function(matcher) {
-							if (matcher.matches(joinPoint)) {
-								if (matcher.injectIncoming) {
-									this.handleInjectIncoming(matcher, joinPoint);
-								}
-								if (matcher.filterIncoming) {
-									matcher.addJoinPoint(joinPoint);
-								}
-								if (matcher.logIncoming) {
-									console.log("Incoming:", joinPoint.target.getSubject(), joinPoint.target.getFields());
-								}
-							}
-						}.bind(this))
-						joinPoint.proceed();
-					},
-					handlePublish: function(joinPoint) {
-						this.matchers.forEach(function(matcher) {
-							if (matcher.matches(joinPoint)) {
-								if (matcher.injectOutgoing) {
-									this.handleInjectOutgoing(matcher, joinPoint);
-								}
-								if (matcher.logOutgoing) {
-									console.log("Outgoing:", joinPoint.args[0], joinPoint.args[1])
-								}
-							}
-						}.bind(this));
-						joinPoint.proceed();
-					},
-					setListeners: function(meld) {
-						if (typeof caplin !== "undefined" && typeof caplin.streamlink !== "undefined") {
-							meld.around(
-								caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
-									joinPoint.proceed();
-								}.bind(this));
-
-							meld.around(
-								caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
-									this.handlePublish(joinPoint);
-								}.bind(this));
-							meld.around(
-								caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
-									this.handleUpdate(joinPoint);
-								}.bind(this)
-							)
-						}
-
-					}
+				columnStyle = {
+					width: "260px",
+					height: "160px",
+					padding: "20px",
+					float: "left",
+					backgroundColor: "white",
+					overflowY: "auto"
 				}
 
 				var damJS = new DamJS(module.exports);
@@ -248,7 +52,7 @@
 
 				var newElement = document.createElement('div');
 				document.body.appendChild(newElement);
-				React.renderComponent(Example({damJS: damJS}), newElement);
+				React.renderComponent(DamJSElement({damJS: damJS}), newElement);
 			});
 		}
 		d.head.appendChild(s);
