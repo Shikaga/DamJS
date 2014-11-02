@@ -1,182 +1,140 @@
-require(['http://localhost:8080/lib/meld.js',
-    'http://localhost:8080/lib/knockout.js',
-    'http://localhost:8080/DamJS.js',
-    'http://localhost:8080/DamJSPlugin.js'], function(meld, ko) {
+(function() {
+	setTimeout(function () {
+		w = window;
+		d = w.document;
+		var s = d.createElement('script');
+		s.src = damJSDomain + '/lib/require.js';
+		s.onload = function() {
+			require.config({
+				baseUrl: damJSDomain
+			});
+			require(['lib/react', 'DamJSElement', 'DamJS'], function(React, DamJSElement, DamJS) {
+				listStyle = {
+					border: "1px solid lightgrey",
+					borderRadius: "5px",
+					padding: "5px",
+					margin: "5px"
+				}
 
+				columnStyle = {
+					width: "260px",
+					height: "160px",
+					padding: "20px",
+					float: "left",
+					backgroundColor: "white",
+					overflowY: "auto"
+				}
 
-    meld.around(
-        caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
-            damJS.onSubscribe(joinPoint);
-            console.log(1, joinPoint);
-    });
+				var damJS = new DamJS(module.exports);
+				damJS.addNewMatcher("/FX/EURUSD");
+				damJS.addNewMatcher("/FX/GBPUSD");
+				damJS.addNewMatcher("/FX/USDJPY");
+				damJS.addNewMatcher("/PRIVATE/TRADE/FX");
 
-    meld.around(
-        caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
-            damJS.onContrib(joinPoint);
-            console.log(2);
-    });
-    meld.around(
-        caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
-            damJS.onData(joinPoint);
-            console.log(3);
-        }
-    )
-
-    createCSS();
-    var div = createDom();
-    this.damJS = new DamJS(ko)
-    this.helloText = ko.observable('Boom!!');
-    ko.applyBindings(this.damJS, div);
-
-
-  var plugin = new DamJSPlugin(ko);
-    plugin.name('Trade Intercepter')
-  var pluginControl = new DamJSPluginController(ko);
-  var pluginDropDown = new DamJSPluginDropDown(ko.observableArray(['OpenAck', 'PickUp', 'PriceUpdate', 'SubmitAck']));
-  pluginControl.addDropDown(pluginDropDown);
-  plugin.addControl(pluginControl);
-  plugin.data['mode'] = 'Open';
-
-	plugin.subject = '/PRIVATE/TRADE/FX';
-	plugin.setForwardingHandler(function(joinPoint) {
-        if (this.data['mode'] == 'Intercept') {
-            this.damJS._addDataToIntercepted(joinPoint);
-        } else {
-            var expectedMsgType = joinPoint.target.getFields().MsgType;
-            var receivedMsgType = pluginDropDown.value;
-            if (expectedMsgType == receivedMsgType) {
-                this.data['mode'] = 'Intercept';
-                this.damJS._addDataToIntercepted(joinPoint);
-            } else {
-                joinPoint.proceed();
-            }
-        }
-
-
+				var newElement = document.createElement('div');
+				document.body.appendChild(newElement);
+				React.renderComponent(DamJSElement({damJS: damJS}), newElement);
+			});
+		}
+		d.head.appendChild(s);
 	});
-    damJS.addPlugin(plugin);
+})();
 
-    var plugin = new DamJSPlugin(ko);
-    plugin.name('Uneven Swap')
-    var pluginControl = new DamJSPluginController(ko);
-    pluginControl.addDropDown(pluginDropDown);
+module = {exports: null};
 
-    plugin.subject = '/PRIVATE/TRADE/FX';
-    plugin.setContribHandler(function(joinPoint) {
-      joinPoint.args[1].L2_Amount = joinPoint.args[1].L2_Amount * 2;
-      joinPoint.proceed();
-    });
-    damJS.addPlugin(plugin);
-})
 
-function createCSS() {
-    var damCSS = document.createElement("style");
-    damCSS.innerHTML = "" +
-        ".dam-js > h1 {" +
-        "   margin-bottom: 0px;" +
-        "   margin-top: 0px;" +
-        "   background-color: rgb(0, 0, 0);" +
-        "   color: white;" +
-        "}" +
-        ".dam-js {" +
-        "   outline: 10px solid rgba(256,256,256,0.1);" +
-        "   color: white; " +
-        "   background-color:black;" +
-        "   width: 400px;" +
-        "   position: fixed;" +
-        "   height: 400px;" +
-        "   right: 30px;" +
-        "   top: 50px;" +
-        "   border: 1px solid white;" +
-        "   z-index: 10000;" +
-        "   overflow-y: scroll;" +
-        "}" +
-        "" +
-        ".subscriptions {" +
-        "   height: 100px;" +
-        "   overflow-x: hidden;" +
-        "   overflow-y: scroll;" +
-        "   color: rgb(41,41,41);" +
-        "   background: -webkit-linear-gradient(top, #f5f5f5 0%, #b7b6b4 100%);" +
-        "}" +
-        "" +
-        ".subscription-copy {" +
-        "   width: 50px;" +
-        "}" +
-        "" +
-        ".subscription-subject {" +
-        "   width: 300px;" +
-        "   display: inline-block;" +
-        "}" +
-        "" +
-        ".matcher-matcher {" +
-        "   width: 340px;" +
-        "   display: inline-block;" +
-        "}" +
-        "" +
-        ".matchers {" +
-        "   height: 100px;" +
-        "   color: rgb(41,41,41);" +
-        "   background: -webkit-linear-gradient(top, #f5f5f5 0%, #b7b6b4 100%);" +
-        "}" +
-        "" +
-        ".intercepted {" +
-        "   height: 200px;" +
-        "   overflow-y: scroll;" +
-        "   color: rgb(41,41,41);" +
-        "   background: -webkit-linear-gradient(top, #f5f5f5 0%, #b7b6b4 100%);" +
-        "}" +
-        "";
-    document.head.appendChild(damCSS);
+//DRAG AND DROP -- http://luke.breuer.com/tutorial/javascript-drag-and-drop-tutorial.aspx 
+
+var _startX = 0;            // mouse starting positions
+var _startY = 0;
+var _offsetX = 0;           // current element offset
+var _offsetY = 0;
+var _dragElement;           // needs to be passed from OnMouseDown to OnMouseMove
+var _oldZIndex = 0;         // we temporarily increase the z-index during drag
+
+function OnMouseDown(e)
+{
+    // IE is retarded and doesn't pass the event object
+    if (e == null) 
+        e = window.event; 
+    
+    // IE uses srcElement, others use target
+    var target = e.target != null ? e.target : e.srcElement;
+
+    // for IE, left click == 1
+    // for Firefox, left click == 0
+    if ((e.button == 1 && window.event != null || 
+        e.button == 0) && 
+        target.className == 'drag')
+    {
+        // grab the mouse position
+        _startX = e.clientX;
+        _startY = e.clientY;
+        
+        // grab the clicked element's position
+        _offsetX = ExtractNumber(target.style.left);
+        _offsetY = ExtractNumber(target.style.top);
+        
+        // bring the clicked element to the front while it is being dragged
+        _oldZIndex = target.style.zIndex;
+        target.style.zIndex = 10000;
+        
+        // we need to access the element in OnMouseMove
+        _dragElement = target;
+
+        // tell our code to start moving the element with the mouse
+        document.onmousemove = OnMouseMove;
+        
+        // cancel out any text selections
+        document.body.focus();
+
+        // prevent text selection in IE
+        document.onselectstart = function () { return false; };
+        // prevent IE from trying to drag an image
+        target.ondragstart = function() { return false; };
+        
+        // prevent text selection (except IE)
+        return false;
+    }
 }
 
-function createDom() {
-    var damDiv = document.createElement("div");
-    damDiv.innerHTML = "" +
-        "<div class='dam-js'>" +
-        "<h1>Subscriptions</h1>" +
-        "<div class='subscriptions' data-bind='foreach: subscriptionsCalled'>" +
-        "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.copySubscriptionToMatcher($parent, data, event) }'>Copy</button>" +
-        "   <div class='subscription-subject'  data-bind='text: args[1].subject'></div>" +
-        "</div>" +
-        "<h1>Matchers</h1>" +
-        "<div class='matchers' data-bind='foreach: matchers'>" +
-        "   <input type='checkbox' data-bind='checked: inFilter'>" +
-        "   <input type='checkbox' data-bind='checked: outFilter'>" +
-        "   <div class='matcher-matcher' data-bind='text: matcher'></div>" +
-        "</div>" +
-        "<input data-bind='value: newMatcherText' />" +
-        "<button data-bind='click: addNewMatcher'>Add</button>" +
-        "<h1>Intercepted Messages</h1>" +
-        "<div class='intercepted' data-bind='foreach: interceptedData'>" +
-        "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.forwardInterceptedData($parent, data, event) }'>Forward</button>" +
-        "   <div class='matcher-matcher' data-bind='text: target.getSubject()'></div>" +
-        "   <div data-bind='foreach: damFields'>" +
-        "       <div data-bind='text: key'></div>:" +
-        "       <input data-bind='value: value'/>" +
-        "   </div>" +
-        "</div>" +
-        "<div class='intercepted' data-bind='foreach: interceptedContrib'>" +
-        "   <button class='subscription-copy' data-bind='click: function(data, event) { $parent.forwardInterceptedContrib($parent, data, event) }'>Forward</button>" +
-        "   <div class='matcher-matcher' data-bind='text: args[0]'></div>" +
-        "   <div data-bind='foreach: damFields'>" +
-        "       <div data-bind='text: key'></div>:" +
-        "       <input data-bind='value: value'/>" +
-        "   </div>" +
-        "</div>" +
-        "<h1>Plugins</h1>" +
-        "   <div data-bind='foreach: plugins'>" +
-        "      <input type='checkbox' data-bind='checked:enabled' />" +
-        "      <span data-bind='text:name' ></span>" +
-        "      <div data-bind='foreach: controls'>" +
-        "         <div data-bind='foreach: dropdowns'>" +
-        "           <select data-bind='options: options, value: value'>" +
-        "         </div>" +
-        "      </div>" +
-        "   </div>" +
+function OnMouseMove(e)
+{
+    if (e == null) 
+        var e = window.event; 
 
-        "</div>" +
-        "";
-    document.body.appendChild(damDiv);
-    return damDiv;
+    // this is the actual "drag code"
+    _dragElement.style.left = (_offsetX + e.clientX - _startX) + 'px';
+    _dragElement.style.top = (_offsetY + e.clientY - _startY) + 'px';
 }
+
+function OnMouseUp(e)
+{
+    if (_dragElement != null)
+    {
+        _dragElement.style.zIndex = _oldZIndex;
+
+        // we're done with these events until the next OnMouseDown
+        document.onmousemove = null;
+        document.onselectstart = null;
+        _dragElement.ondragstart = null;
+
+        // this is how we know we're not dragging      
+        _dragElement = null;
+    }
+}
+
+function ExtractNumber(value)
+{
+    var n = parseInt(value);
+    
+    return n == null || isNaN(n) ? 0 : n;
+}
+
+function InitDragDrop()
+{
+    document.onmousedown = OnMouseDown;
+    document.onmouseup = OnMouseUp;
+}
+
+InitDragDrop();
