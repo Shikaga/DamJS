@@ -1,1 +1,1 @@
-javascript:(function(){window.damJSDomain="http://localhost:8080";var s = document.createElement('script');s.src = damJSDomain + '/index.js';document.getElementsByTagName('head')[0].appendChild(s);})()
+javascript:(function(){window.damJSDomain="http://shikaga.github.io/DamJS";var s = document.createElement('script');s.src = damJSDomain + '/index.js';document.getElementsByTagName('head')[0].appendChild(s);})()
