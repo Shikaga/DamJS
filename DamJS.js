@@ -17,6 +17,11 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 
 		},
 		addNewMatcher: function(matchString) {
+			for (var i=0; i < this.matchers.length; i++) {
+				if (this.matchers[i].matchString == matchString) {
+					return;
+				}
+			}
 			this.matchers.push(new DamJSMatcher(matchString));
 			this.update();
 		},
@@ -73,7 +78,19 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
 						joinPoint.proceed();
 					}.bind(this));
-
+//				meld.around(
+//					caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'onUpdate', function(joinPoint) {
+//						if (typeof x == "undefined") {
+//							if (joinPoint.args[0] instanceof caplin.streamlink.impl.event.RecordType1EventImpl) {
+//								x = joinPoint;
+//								var subs = x.target.subscriptions.subscriptions;
+//								for (var key in subs) {
+//									this.addNewMatcher(subs[key].messages[0].handler._subject);
+//								}
+//							}
+//						}
+//						joinPoint.proceed();
+//					}.bind(this));
 				meld.around(
 					caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
 						this.handlePublish(joinPoint);
