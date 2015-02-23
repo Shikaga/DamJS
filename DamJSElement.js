@@ -23,7 +23,7 @@ define(['lib/react', 'MatcherListElement'], function(React, MatcherListElement) 
 				zIndex: 100000
 			}
 			return React.DOM.div({style: divStyle, className: "drag"},
-				MatcherListElement({matchers: this.state.damJS.matchers}));
+				MatcherListElement({damJS: this.props.damJS, matchers: this.state.damJS.matchers}));
 		}
 	});
 });
