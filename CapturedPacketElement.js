@@ -19,12 +19,18 @@ define(['lib/react', 'CapturedPacketElementInfo'], function(React, CapturedPacke
 				});
 			}
 		},
+		forwardJoinPoint: function() {
+			this.props.joinPoint.matcher.forwardJoinPoint(this.props.joinPoint);
+		},
+		removeJoinPoint: function() {
+			this.props.joinPoint.matcher.removeJoinPoint(this.props.joinPoint);
+		},
 		render: function() {
 			var capturedJP = this.props.joinPoint;
 			var subjectElement = React.DOM.span(null, capturedJP.target.getSubject())
 			return React.DOM.div(null, subjectElement, 
-				React.DOM.button(null, "Forward"), 
-				React.DOM.button(null, "Remove"), 
+				React.DOM.button({onClick: this.forwardJoinPoint}, "Forward"), 
+				React.DOM.button({onClick: this.removeJoinPoint}, "Remove"), 
 				React.DOM.button({onClick: this.toggleInfo}, "Info"),
 				this.state.infoElement);
 		}

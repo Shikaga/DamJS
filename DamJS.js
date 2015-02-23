@@ -44,6 +44,7 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 			})
 		},
 		handleUpdate: function(joinPoint) {
+			var proceed = true;
 			this.matchers.forEach(function(matcher) {
 				if (matcher.matches(joinPoint)) {
 					if (matcher.injectIncoming) {
@@ -51,13 +52,16 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					}
 					if (matcher.filterIncoming) {
 						matcher.addJoinPoint(joinPoint);
+						proceed = false;
 					}
 					if (matcher.logIncoming) {
 						console.log("Incoming:", joinPoint.target.getSubject(), joinPoint.target.getFields());
 					}
 				}
 			}.bind(this))
-			joinPoint.proceed();
+			if (proceed) {
+				joinPoint.proceed();
+			}
 		},
 		handlePublish: function(joinPoint) {
 			this.matchers.forEach(function(matcher) {

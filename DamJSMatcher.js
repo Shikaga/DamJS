@@ -117,6 +117,16 @@ define(['lib/react'], function(React) {
 		},
 		addJoinPoint: function(joinPoint) {
 			this.joinPointsCached.push(joinPoint);
+			joinPoint.matcher = this;
+			this.updateReact();
+		},
+		forwardJoinPoint: function(joinPoint) {
+			joinPoint.proceed();
+			this.removeJoinPoint(joinPoint);
+		},
+		removeJoinPoint: function(joinPoint) {
+			var index = this.joinPointsCached.indexOf(joinPoint);
+			this.joinPointsCached.splice(index,1);
 			this.updateReact();
 		}
 	}
