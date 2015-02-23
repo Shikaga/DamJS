@@ -5,7 +5,10 @@
 		var s = d.createElement('script');
 		s.src = damJSDomain + '/lib/require.js';
 
-        exportsBak = exports;
+        if (typeof(exports) !== "undefined") {
+
+            exportsBak = exports;
+        }
         exports = undefined
         defineBak = define;
         define = undefined
@@ -36,13 +39,15 @@
 				var damJS = new DamJS(module.exports);
 				damJS.addNewMatcher("/FX/EURUSD");
 				damJS.addNewMatcher("/FX/GBPUSD");
-				damJS.addNewMatcher("/FX/USDJPY");
+                damJS.addNewMatcher("/FX/USDJPY");
+                damJS.addNewMatcher("/PRIVATE/FX");
 				damJS.addNewMatcher("/PRIVATE/TRADE/FX");
 
 				var newElement = document.createElement('div');
 				document.body.appendChild(newElement);
 				React.renderComponent(DamJSElement({damJS: damJS}), newElement);
 
+                if (expo)
                 exports = exportsBak;
                 define = defineBak;
                 require = requireBak;
