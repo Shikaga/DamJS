@@ -4,6 +4,14 @@
 		d = w.document;
 		var s = d.createElement('script');
 		s.src = damJSDomain + '/lib/require.js';
+
+        exportsBak = exports;
+        exports = undefined
+        defineBak = define;
+        define = undefined
+        requireBak = require;
+        require = undefined
+
 		s.onload = function() {
 			require.config({
 				baseUrl: damJSDomain
@@ -34,6 +42,11 @@
 				var newElement = document.createElement('div');
 				document.body.appendChild(newElement);
 				React.renderComponent(DamJSElement({damJS: damJS}), newElement);
+
+                exports = exportsBak;
+                define = defineBak;
+                require = requireBak;
+
 			});
 		}
 		d.head.appendChild(s);
