@@ -47,7 +47,6 @@
 				document.body.appendChild(newElement);
 				React.renderComponent(DamJSElement({damJS: damJS}), newElement);
 
-                if (expo)
                 exports = exportsBak;
                 define = defineBak;
                 require = requireBak;
