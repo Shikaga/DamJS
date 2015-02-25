@@ -61,6 +61,7 @@ define(['lib/react'], function(React) {
 					));
 				}
 				return React.DOM.div({style: columnStyle},
+					React.DOM.button({onClick: this.props.back}, "Back"),
 					React.DOM.div(null,
 						"Inject Incoming Elements",
 						incomingRows,
@@ -70,7 +71,7 @@ define(['lib/react'], function(React) {
 						outgoingRows,
 						React.DOM.button({onClick: this.addOutgoingRow}, "Add Outgoing Row")));
 			} else {
-				return React.DOM.div();
+				return React.DOM.button({onClick: this.props.back}, "Back");
 			}
 		}
 	})

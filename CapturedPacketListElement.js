@@ -22,9 +22,11 @@ define(['lib/react', 'CapturedPacketElement'], function(React, CapturedPacketEle
 				this.state.matches.forEach(function(joinPoint) {
 					packetList.push(CapturedPacketElement({joinPoint: joinPoint}));
 				})
-				return React.DOM.div({style: columnStyle}, packetList);
+				return React.DOM.div({style: columnStyle}, 
+					React.DOM.button({onClick: this.props.back}, "Back"),
+					packetList);
 			}
-			return React.DOM.div();
+			return React.DOM.button({onClick: this.props.back}, "Back");
 		}
 	});
 });
