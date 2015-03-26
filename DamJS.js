@@ -7,40 +7,24 @@ function findPermissioningHandler() {
 }
 
 function disableTrading() {
+	var messages = [];
 	a = findPermissioningHandler();
 	b = a.getSubscriptionListener();
-	e1 = {getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/START"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}}
-	e4 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "ROW_COUNT", VALUE: "3"}}, getKey: function() {return "ROW_COUNT"}}
+	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/START"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}});
+	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "ROW_COUNT", VALUE: "3"}}, getKey: function() {return "ROW_COUNT"}});
 	var parents = Object.keys(findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers["user2@caplin.com"].m_mGroups).join(",");
-	e2 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "PARENTS", VALUE: parents}}, getKey: function() {return "PARENTS"}}
-	e3 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "FX_CURRENCY_PAIR_TRADE_LIST", AUTH: "USDDKK~DENY,USDJPY~DENY,EURUSD~DENY", TYPE: "PERMISSION", VALUE: ".*"}}, getKey: function() {return "PERMISSION:.*:FX_CURRENCY_PAIR_TRADE_LIST"}}
+	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "PARENTS", VALUE: parents}}, getKey: function() {return "PARENTS"}});
+	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "FX_CURRENCY_PAIR_TRADE_LIST", AUTH: "USDDKK~DENY,USDJPY~DENY,EURUSD~DENY", TYPE: "PERMISSION", VALUE: ".*"}}, getKey: function() {return "PERMISSION:.*:FX_CURRENCY_PAIR_TRADE_LIST"}});
 
 	//e5 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {AUTH: "FX-TRADE~DENY", PERMISSION_NAMESPACE: "FX_TRADE", TYPE: "PERMISSION", VALUE: ".*"}}, getKey: function() {return "PERMISSION:.*:FX_TRADE"}}
-	e6 = {getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/COMMIT"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}}
-	b.onPermissionUpdate(a, e1);
-	b.onPermissionUpdate(a, e4);
-	b.onPermissionUpdate(a, e2);
-	b.onPermissionUpdate(a, e3);
-	//b.onPermissionUpdate(a, e5);
-	b.onPermissionUpdate(a, e6);
+	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/COMMIT"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}});
+	for (var i=0; i < messages.length; i++) {
+		b.onPermissionUpdate(a, messages[i]);
+	}
 }
 
 function enableTrading() {
-	a = findPermissioningHandler();
-	b = a.getSubscriptionListener();
-	e1 = {getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/START"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}}
-	var parents = Object.keys(findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers["user2@caplin.com"].m_mGroups).join(",");
-	e2 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "PARENTS", VALUE: parents}}, getKey: function() {return "PARENTS"}}
-	e3 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "FX_CURRENCY_PAIR_TRADE_LIST", AUTH: "USDDKK~DENY,USDJPY~DENY", TYPE: "PERMISSION", VALUE: ".*"}}, getKey: function() {return "PERMISSION:.*:FX_CURRENCY_PAIR_TRADE_LIST"}}
-	e4 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "ROW_COUNT", VALUE: "3"}}, getKey: function() {return "ROW_COUNT"}}
-	// e7 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "FX_TRADE", AUTH: "FX-TRADE~ALLOW", TYPE: "PERMISSION", VALUE: ".*"}}, getKey: function() {return "PERMISSION:.*:FX_TRADE"}}
-	e6 = {getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/COMMIT"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}}
-	b.onPermissionUpdate(a, e1);
-	b.onPermissionUpdate(a, e2);
-	b.onPermissionUpdate(a, e3);
-	b.onPermissionUpdate(a, e4);
-	//b.onPermissionUpdate(a, e7);
-	b.onPermissionUpdate(a, e6);
+	alert('currently disabled');
 }
 
 define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, meld) {
