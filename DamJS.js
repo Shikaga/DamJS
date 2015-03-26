@@ -1,3 +1,5 @@
+var username = "user2@caplin.com"
+
 function findPermissioningHandler() {
 	for (var i in x) {
 	  if (x[i].messages[0].handler.getSubject().indexOf("/PERMISSIONS/MASTER/CONTAINER") !== -1) {
@@ -7,15 +9,66 @@ function findPermissioningHandler() {
 }
 
 function disableTrading() {
+	var tempMessages = [];
+
+
+	// tempMessages.push({
+	// 	getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"},
+	// 	getFields: function() {return {PERMISSION_NAMESPACE: "FX_CURRENCY_PAIR_TRADE_LIST", AUTH: "USDDKK~DENY,USDJPY~DENY,EURUSD~DENY", TYPE: "PERMISSION", VALUE: ".*"}},
+	// 	getKey: function() {return "PERMISSION:.*:FX_CURRENCY_PAIR_TRADE_LIST"}
+	// });
+
+	function getStringReturner(string) {
+		return function() {
+			return string;
+		}
+	}
+
+	function getFieldsReturner(permName, auth, type, value) {
+		return function() {
+			return {
+				PERMISSION_NAMESPACE: permName,
+				AUTH: auth,
+				TYPE: type,
+				VALUE: value
+			}
+		}
+	}
+
+	var perms = findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers[username].m_mPermissions;
+
+	for (var permContext in perms) {
+		var permissions = perms[permContext].m_mPermissions;
+		for (var permId in permissions) {
+			var permission = permissions[permId];
+
+			permission.m_mPermissions["EURUSD"] = "DENY"
+			var auths = [];
+			for (var key in permission.m_mPermissions) {
+				auths.push(key + "~" + permission.m_mPermissions[key]);
+			}
+			//auths.push("EURUSD~DENY");
+
+			tempMessages.push({
+				getSubject: getStringReturner("/PERMISSIONS/MASTER/USER/" + username),
+				getFields: getFieldsReturner(permission.m_sNamespace, auths.join(","), "PERMISSION", permContext),
+				getKey: getStringReturner("PERMISSION:" + permContext + ":" + permId)
+				//getKey: function() {return "PERMISSION:.*:FX_CURRENCY_PAIR_TRADE_LIST"}
+			});
+		}
+	}
+
 	var messages = [];
+
 	a = findPermissioningHandler();
 	b = a.getSubscriptionListener();
 	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/START"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}});
-	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "ROW_COUNT", VALUE: "3"}}, getKey: function() {return "ROW_COUNT"}});
-	var parents = Object.keys(findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers["user2@caplin.com"].m_mGroups).join(",");
-	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "PARENTS", VALUE: parents}}, getKey: function() {return "PARENTS"}});
-	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {PERMISSION_NAMESPACE: "FX_CURRENCY_PAIR_TRADE_LIST", AUTH: "USDDKK~DENY,USDJPY~DENY,EURUSD~DENY", TYPE: "PERMISSION", VALUE: ".*"}}, getKey: function() {return "PERMISSION:.*:FX_CURRENCY_PAIR_TRADE_LIST"}});
-
+	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/" + username}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "ROW_COUNT", VALUE: "3"}}, getKey: function() {return "ROW_COUNT"}});
+	var parents = Object.keys(findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers[username].m_mGroups).join(",");
+	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/USER/" + username}, getFields: function() {return {PERMISSION_NAMESPACE: "", AUTH: "", TYPE: "PARENTS", VALUE: parents}}, getKey: function() {return "PARENTS"}});
+	for (var i=0; i < tempMessages.length; i++) {
+		messages.push(tempMessages[i]);
+	}
 	//e5 = {getSubject: function() {return "/PERMISSIONS/MASTER/USER/user2@caplin.com"}, getFields: function() {return {AUTH: "FX-TRADE~DENY", PERMISSION_NAMESPACE: "FX_TRADE", TYPE: "PERMISSION", VALUE: ".*"}}, getKey: function() {return "PERMISSION:.*:FX_TRADE"}}
 	messages.push({getSubject: function() {return "/PERMISSIONS/MASTER/CONTROL/COMMIT"}, getFields: function() {return {TXN_ID: "999"}}, getKey: function() {return "TXN_ID"}});
 	for (var i=0; i < messages.length; i++) {
