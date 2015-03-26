@@ -23,8 +23,9 @@ define(['lib/react', 'MatcherListElement'], function(React, MatcherListElement) 
 				zIndex: 100000
 			}
 			return React.DOM.div({style: divStyle, className: "drag"},
+			  React.DOM.button({onClick: disableTrading}, "Disable Trading"),
+				  React.DOM.button({onClick: enableTrading}, "Enable Trading"),
 				MatcherListElement({damJS: this.props.damJS, matchers: this.state.damJS.matchers}));
 		}
 	});
 });
-
