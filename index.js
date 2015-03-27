@@ -7,12 +7,18 @@
 
         if (typeof(exports) !== "undefined") {
             exportsBak = exports;
-						exports = undefined
-		        defineBak = define;
-		        define = undefined
-		        requireBak = require;
-		        require = undefined
         }
+				exports = undefined
+				
+				if (typeof(define) !== "undefined") {
+					defineBak = define;
+        }
+				define = undefined
+
+				if (typeof(require) !== "undefined") {
+					requireBak = require;
+        }
+				require = undefined
 
 
 		s.onload = function() {

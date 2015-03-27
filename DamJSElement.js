@@ -34,7 +34,9 @@ define(['lib/react', 'MatcherListElement', 'PermContextPicker'], function(React,
 				zIndex: 100000
 			}
 			if (this.state.state == "permission") {
-				return PermContextPicker({back: this.back});
+				return React.DOM.div({style: divStyle, className: "drag"},
+					PermContextPicker({back: this.back})
+				);
 			} else {
 				return React.DOM.div({style: divStyle, className: "drag"},
 			  	React.DOM.button({onClick: this.showPermissions}, "Permissions"),
