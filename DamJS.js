@@ -42,7 +42,7 @@ function disableTrading() {
 		for (var permId in permissions) { //TRADE
 			var permission = permissions[permId];
 
-			permission.m_mPermissions["EURUSD"] = "DENY"
+			//permission.m_mPermissions["EURUSD"] = "DENY"
 			var auths = [];
 			for (var key in permission.m_mPermissions) {
 				auths.push(key + "~" + permission.m_mPermissions[key]);

@@ -21,6 +21,9 @@ define(['lib/react', 'MatcherListElement', 'PermContextPicker'], function(React,
 				state: "none"
 			})
 		},
+		updatePerms: function() {
+			disableTrading();
+		},
 		render: function() {
 			var divStyle = {
 				background: "white",
@@ -35,6 +38,7 @@ define(['lib/react', 'MatcherListElement', 'PermContextPicker'], function(React,
 			}
 			if (this.state.state == "permission") {
 				return React.DOM.div({style: divStyle, className: "drag"},
+					React.DOM.button({onClick: this.updatePerms}, "Update Perms"),
 					PermContextPicker({back: this.back})
 				);
 			} else {
