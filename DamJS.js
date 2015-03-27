@@ -1,5 +1,3 @@
-var username = "user1@caplin.com"
-
 function findPermissioningHandler() {
 	for (var i in x) {
 	  if (x[i].messages[0].handler.getSubject().indexOf("/PERMISSIONS/MASTER/CONTAINER") !== -1) {
