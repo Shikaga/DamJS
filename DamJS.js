@@ -37,9 +37,9 @@ function disableTrading() {
 
 	var perms = findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers[username].m_mPermissions;
 
-	for (var permContext in perms) {
+	for (var permContext in perms) { //.*
 		var permissions = perms[permContext].m_mPermissions;
-		for (var permId in permissions) {
+		for (var permId in permissions) { //TRADE
 			var permission = permissions[permId];
 
 			permission.m_mPermissions["EURUSD"] = "DENY"

@@ -1,14 +1,25 @@
-define(['lib/react', 'MatcherListElement'], function(React, MatcherListElement) {
+define(['lib/react', 'MatcherListElement', 'PermContextPicker'], function(React, MatcherListElement, PermContextPicker) {
 	return React.createClass({
 		getInitialState: function() {
 			this.props.damJS.onUpdate(function() {
 				this.setState({
-					damJS: this.props.damJS
+					damJS: this.props.damJS,
+					state: "none"
 				})
 			}.bind(this))
 			return {
 				damJS: this.props.damJS
 			}
+		},
+		showPermissions: function() {
+			this.setState({
+				state: "permission"
+			})
+		},
+		back: function() {
+			this.setState({
+				state: "none"
+			})
 		},
 		render: function() {
 			var divStyle = {
@@ -22,10 +33,13 @@ define(['lib/react', 'MatcherListElement'], function(React, MatcherListElement) 
 				height: "200px",
 				zIndex: 100000
 			}
-			return React.DOM.div({style: divStyle, className: "drag"},
-			  React.DOM.button({onClick: disableTrading}, "Disable Trading"),
-				  React.DOM.button({onClick: enableTrading}, "Enable Trading"),
-				MatcherListElement({damJS: this.props.damJS, matchers: this.state.damJS.matchers}));
+			if (this.state.state == "permission") {
+				return PermContextPicker({back: this.back});
+			} else {
+				return React.DOM.div({style: divStyle, className: "drag"},
+			  	React.DOM.button({onClick: this.showPermissions}, "Permissions"),
+					MatcherListElement({damJS: this.props.damJS, matchers: this.state.damJS.matchers}));
+			}
 		}
 	});
 });
