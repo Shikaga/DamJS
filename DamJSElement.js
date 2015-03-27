@@ -1,4 +1,4 @@
-define(['lib/react', 'MatcherListElement', 'PermContextPicker'], function(React, MatcherListElement, PermContextPicker) {
+define(['lib/react', 'MatcherListElement', 'PermUserElement'], function(React, MatcherListElement, PermUserElement) {
 	return React.createClass({
 		getInitialState: function() {
 			this.props.damJS.onUpdate(function() {
@@ -36,10 +36,12 @@ define(['lib/react', 'MatcherListElement', 'PermContextPicker'], function(React,
 				height: "200px",
 				zIndex: 100000
 			}
+
 			if (this.state.state == "permission") {
+				var username = Object.keys(findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers)[0];
 				return React.DOM.div({style: divStyle, className: "drag"},
 					React.DOM.button({onClick: this.updatePerms}, "Update Perms"),
-					PermContextPicker({back: this.back})
+					PermUserElement({back: this.back, user: findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers[username]})
 				);
 			} else {
 				return React.DOM.div({style: divStyle, className: "drag"},
