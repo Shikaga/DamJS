@@ -38,7 +38,7 @@ define(['lib/react', 'PermGroupListElement', 'PermContextPicker'], function(Reac
         return React.DOM.div({},
           React.DOM.div({}, React.DOM.button({onClick: this.props.back}, "Back")),
           React.DOM.div({}, React.DOM.button({onClick: this.selectPerms}, "Permissions")),
-          React.DOM.div("Groups"),
+          React.DOM.div({}, "Groups"),
           groupElements
         );
       } else {

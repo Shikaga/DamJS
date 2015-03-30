@@ -17,7 +17,7 @@ define(['lib/react', 'PermPermissionListElement'], function(React, PermPermissio
         var permissions = Object.keys(this.props.permissions);
         var permissionElements = [];
         for (var i=0; i < permissions.length; i++) {
-          permissionElements.push(PermPermissionListElement({selectPermission: this.selectPermission, permission: permissions[i], value: this.props.permissions[permissions[i]], context: this.props.context, permissionGroup: this.props.permissionGroup}));
+          permissionElements.push(PermPermissionListElement({selectPermission: this.selectPermission, permissions: this.props.permissions, permission: permissions[i], value: this.props.permissions[permissions[i]], context: this.props.context, permissionGroup: this.props.permissionGroup}));
         }
 
         return React.DOM.div({},

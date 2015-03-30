@@ -4,7 +4,7 @@ define(['lib/react'], function(React) {
       return {value: this.props.value}
     },
     onInputChange: function(e){
-      findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers[username].m_mPermissions[this.props.context].m_mPermissions[this.props.permissionGroup].m_mPermissions[this.props.permission] = e.target.value;
+			this.props.permissions[this.props.permission] = e.target.value;
 			this.setState({value:e.target.value});
 		},
 		render: function() {

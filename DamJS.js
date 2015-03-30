@@ -33,6 +33,7 @@ function disableTrading() {
 		}
 	}
 
+	var username = Object.keys(findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers)[0];
 	var perms = findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers[username].m_mPermissions;
 
 	for (var permContext in perms) { //.*
