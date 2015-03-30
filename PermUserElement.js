@@ -18,14 +18,12 @@ define(['lib/react', 'PermGroupListElement', 'PermContextPicker'], function(Reac
       });
     },
     selectPerms: function() {
-      debugger;
       this.setState({
         permSelected: true
       })
     },
 		render: function() {
       if (this.state.permSelected == true) {
-        debugger;
         return PermContextPicker({back: this.back, contexts: this.props.user.m_mPermissions})
       } else if (this.state.group == null) {
         groupElements = [];
