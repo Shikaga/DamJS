@@ -29,7 +29,9 @@ define(['lib/react'], function(React) {
         }
       }
 
-			return React.DOM.div({onClick: this.selectMatcher}, serviceElements);
+			return React.DOM.div({},
+        React.DOM.button({onClick: this.props.back}, "Back"),
+        serviceElements);
 		}
 	});
 });
