@@ -1,4 +1,4 @@
-define(['lib/react', 'MatcherListElement', 'PermUserElement'], function(React, MatcherListElement, PermUserElement) {
+define(['lib/react', 'MatcherListElement', 'PermUserElement', 'ServicesListElement'], function(React, MatcherListElement, PermUserElement, ServicesListElement) {
 	return React.createClass({
 		getInitialState: function() {
 			this.props.damJS.onUpdate(function() {
@@ -14,6 +14,11 @@ define(['lib/react', 'MatcherListElement', 'PermUserElement'], function(React, M
 		showPermissions: function() {
 			this.setState({
 				state: "permission"
+			})
+		},
+		showServices: function() {
+			this.setState({
+				state: "services"
 			})
 		},
 		back: function() {
@@ -34,6 +39,7 @@ define(['lib/react', 'MatcherListElement', 'PermUserElement'], function(React, M
 				position: "relative",
 				width: "300px",
 				height: "200px",
+				overflow: "scroll",
 				zIndex: 100000
 			}
 
@@ -43,9 +49,14 @@ define(['lib/react', 'MatcherListElement', 'PermUserElement'], function(React, M
 					React.DOM.button({onClick: this.updatePerms}, "Update Perms"),
 					PermUserElement({back: this.back, user: findPermissioningHandler().getSubscriptionListener()._compositePermissionEngine.m_mEngines.MASTER.m_mUsers[username]})
 				);
+			} else if (this.state.state == "services") {
+				return React.DOM.div({style: divStyle, className: "drag"},
+					ServicesListElement({back: this.back})
+				);
 			} else {
 				return React.DOM.div({style: divStyle, className: "drag"},
 			  	React.DOM.button({onClick: this.showPermissions}, "Permissions"),
+				  React.DOM.button({onClick: this.showServices}, "Services"),
 					MatcherListElement({damJS: this.props.damJS, matchers: this.state.damJS.matchers}));
 			}
 		}

@@ -180,8 +180,16 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
 						this.handlePublish(joinPoint);
 					}.bind(this));
+
 				meld.around(
 					caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
+						// CTSL.getSLJS().addConnectionListener({
+						// 	onServiceStatusChange: function() {
+						// 		debugger;
+						// 	}
+						// });
+						services = CTSL.getSLJS()._streamLinkCore._protocolHandler.connection.connectionListeners[3]._services;
+						//console.log(services);
 						x = joinPoint.args[0]._subscriptionManager.subscriptions.subscriptions;
 						this.handleUpdate(joinPoint);
 					}.bind(this)
@@ -196,6 +204,8 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 
 		}
 	}
+
+
 
 	return DamJS;
 });
