@@ -188,7 +188,6 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 						// 		debugger;
 						// 	}
 						// });
-						services = CTSL.getSLJS()._streamLinkCore._protocolHandler.connection.connectionListeners[3]._services;
 						//console.log(services);
 						x = joinPoint.args[0]._subscriptionManager.subscriptions.subscriptions;
 						this.handleUpdate(joinPoint);

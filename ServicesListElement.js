@@ -19,6 +19,7 @@ define(['lib/react'], function(React) {
 
 		render: function() {
       var serviceElements = []
+      var services = CTSL.getSLJS()._streamLinkCore._protocolHandler.connection.connectionListeners[3]._services;
       if (services) {
         for (var service in services) {
           serviceElements.push(React.DOM.div({},
