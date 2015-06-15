@@ -9,7 +9,7 @@
             exportsBak = exports;
         }
 				exports = undefined
-				
+
 				if (typeof(define) !== "undefined") {
 					defineBak = define;
         }
@@ -34,7 +34,7 @@
 				}
 
 				columnStyle = {
-					width: "260px",
+					width: "300px",
 					height: "160px",
 					padding: "20px",
 					float: "left",
