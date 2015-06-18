@@ -180,7 +180,6 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					caplin.streamlink.impl.StreamLinkCoreImpl.prototype, 'publishToSubject', function(joinPoint) {
 						this.handlePublish(joinPoint);
 					}.bind(this));
-
 				meld.around(
 					caplin.streamlink.impl.event.RecordType1EventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
 						// CTSL.getSLJS().addConnectionListener({
@@ -197,6 +196,13 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					caplin.streamlink.impl.event.PermissionEventImpl.prototype, '_publishSubscriptionResponse', function(joinPoint) {
 						x = joinPoint.args[0]._subscriptionManager.subscriptions.subscriptions;
 						this.handleUpdate(joinPoint);
+					}.bind(this)
+				)
+				meld.around(
+					caplin.streamlink.StreamLink.prototype, 'subscribe', function(joinPoint) {
+						this.streamlink = joinPoint.target;
+						window.damJSStreamLink = this.streamlink;
+						joinPoint.proceed();
 					}.bind(this)
 				)
 			}
