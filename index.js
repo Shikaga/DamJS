@@ -48,6 +48,7 @@
                 damJS.addNewMatcher("/FX/USDJPY");
                 damJS.addNewMatcher("/PRIVATE/FX");
 				damJS.addNewMatcher("/PRIVATE/TRADE/FX");
+				damJS.addNewMatcher("/PRIVATE/TRADE/MM");
 
 				var newElement = document.createElement('div');
 				document.body.appendChild(newElement);
