@@ -149,10 +149,10 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 			this.matchers.forEach(function(matcher) {
 				if (matcher.matches(joinPoint)) {
 					if (matcher.injectOutgoing) {
-						this.handleInjectOutgoing(matcher, joinPoint);
+						//this.handleInjectOutgoing(matcher, joinPoint);
 					}
 					if (matcher.filterOutgoing) {
-						matcher.addJoinPoint(joinPoint);
+						//matcher.addJoinPoint(joinPoint);
 						proceed = false;
 					}
 					if (matcher.logOutgoing) {
@@ -170,10 +170,10 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 			this.matchers.forEach(function(matcher) {
 				if (matcher.matches(joinPoint)) {
 					if (matcher.injectOutgoing) {
-						this.handleInjectOutgoing(matcher, joinPoint);
+						//this.handleInjectOutgoing(matcher, joinPoint);
 					}
 					if (matcher.filterOutgoing) {
-						matcher.addJoinPoint(joinPoint);
+						//matcher.addJoinPoint(joinPoint);
 						proceed = false;
 					}
 					if (matcher.logOutgoing) {
