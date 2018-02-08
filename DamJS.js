@@ -145,17 +145,45 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 			}
 		},
 		handlePublish: function(joinPoint) {
+			var proceed = true;
 			this.matchers.forEach(function(matcher) {
 				if (matcher.matches(joinPoint)) {
 					if (matcher.injectOutgoing) {
 						this.handleInjectOutgoing(matcher, joinPoint);
+					}
+					if (matcher.filterOutgoing) {
+						matcher.addJoinPoint(joinPoint);
+						proceed = false;
 					}
 					if (matcher.logOutgoing) {
 						console.log("Outgoing:", joinPoint.args[0], joinPoint.args[1])
 					}
 				}
 			}.bind(this));
-			joinPoint.proceed();
+			if (proceed) {
+				joinPoint.proceed();
+			}
+		},
+		handleSubscribe: function(joinPoint) {
+			debugger;
+			var proceed = true;
+			this.matchers.forEach(function(matcher) {
+				if (matcher.matches(joinPoint)) {
+					if (matcher.injectOutgoing) {
+						this.handleInjectOutgoing(matcher, joinPoint);
+					}
+					if (matcher.filterOutgoing) {
+						matcher.addJoinPoint(joinPoint);
+						proceed = false;
+					}
+					if (matcher.logOutgoing) {
+						console.log("Outgoing:", joinPoint.args[0], joinPoint.args[1])
+					}
+				}
+			}.bind(this));
+			if (proceed) {
+				joinPoint.proceed();
+			}
 		},
 		setListeners: function() {
 			if (typeof caplin !== "undefined" && typeof caplin.streamlink !== "undefined") {
@@ -202,7 +230,7 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					caplin.streamlink.StreamLink.prototype, 'subscribe', function(joinPoint) {
 						this.streamlink = joinPoint.target;
 						window.damJSStreamLink = this.streamlink;
-						joinPoint.proceed();
+						this.handleSubscribe(joinPoint);
 					}.bind(this)
 				)
 			}
