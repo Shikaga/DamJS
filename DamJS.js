@@ -165,7 +165,6 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 			}
 		},
 		handleSubscribe: function(joinPoint) {
-			debugger;
 			var proceed = true;
 			this.matchers.forEach(function(matcher) {
 				if (matcher.matches(joinPoint)) {
