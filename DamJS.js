@@ -181,7 +181,7 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 				}
 			}.bind(this));
 			if (proceed) {
-				joinPoint.proceed();
+				return joinPoint.proceed();
 			}
 		},
 		setListeners: function() {
@@ -229,7 +229,7 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					caplin.streamlink.StreamLink.prototype, 'subscribe', function(joinPoint) {
 						this.streamlink = joinPoint.target;
 						window.damJSStreamLink = this.streamlink;
-						this.handleSubscribe(joinPoint);
+						return this.handleSubscribe(joinPoint);
 					}.bind(this)
 				)
 			}
