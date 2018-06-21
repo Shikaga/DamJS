@@ -171,10 +171,6 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 					if (matcher.injectOutgoing) {
 						//this.handleInjectOutgoing(matcher, joinPoint);
 					}
-					if (matcher.filterOutgoing) {
-						//matcher.addJoinPoint(joinPoint);
-						proceed = false;
-					}
 					if (matcher.logOutgoing) {
 						console.log("Outgoing:", joinPoint.args[0], joinPoint.args[1])
 					}
@@ -188,7 +184,17 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 			if (typeof caplin !== "undefined" && typeof caplin.streamlink !== "undefined") {
 				meld.around(
 					caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'send', function(joinPoint) {
-						joinPoint.proceed();
+						var proceed = true;
+						this.matchers.forEach(function(matcher) {
+							if (matcher.matches(joinPoint.args[1].subject)) {
+								if (matcher.filterOutgoing) {
+									proceed = false;
+								}
+							}
+						}.bind(this));
+						if (proceed) {
+							return joinPoint.proceed();
+						}
 					}.bind(this));
 //				meld.around(
 //					caplin.streamlink.impl.subscription.SubscriptionManager.prototype, 'onUpdate', function(joinPoint) {

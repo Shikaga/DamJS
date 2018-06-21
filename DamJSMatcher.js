@@ -101,14 +101,24 @@ define(['lib/react'], function(React) {
 		},
 		matches: function(joinPoint) {
 			function isIncoming() {
-				return joinPoint.target.getSubject
+				if (joinPoint && joinPoint.target) {
+					return joinPoint.target.getSubject
+				}
+
 			}
-			if (isIncoming()) {
-				if (joinPoint.target.getSubject().match(this.matchString)) {
+			function isString() {
+				return typeof joinPoint === "string";
+			}
+			if (isString()) {
+				if (joinPoint.match(this.matchString)) {
+					return true;
+				}
+			} else if (isIncoming()) {
+				if (joinPoint && joinPoint.target && joinPoint.target.getSubject && joinPoint.target.getSubject().match(this.matchString)) {
 					return true;
 				}
 			} else {
-				if (joinPoint.args[0].match(this.matchString)) {
+				if (joinPoint && joinPoint.args && joinPoint.args[0].match(this.matchString)) {
 					return true;
 				}
 			}
