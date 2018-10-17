@@ -84,6 +84,12 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 		this.matchers = [];
 		this.setListeners();
 		this.react = null;
+		this.previous= {
+			didProceed: true,
+			time: null,
+			sequenceNum: null,
+			collection: null
+		};
 	}
 
 	DamJS.prototype = {
@@ -114,6 +120,16 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 		onUpdate: function(fn) {
 			this.listener = fn;
 		},
+		alreadyExists: function(joinPoint){
+			if (joinPoint.target._timeReceived === this.previous.time && this.previous.sequenceNum === joinPoint.target._rttpSequenceNumber){
+				return true;
+			} else{
+				this.previous.time = joinPoint.target._timeReceived
+				this.previous.sequenceNum = joinPoint.target._rttpSequenceNumber
+				this.previous.collection = [joinPoint];
+				return false;
+			}
+		},
 		handleInjectIncoming: function(matcher, joinPoint) {
 			matcher.incomingInjectionFields.forEach(function(injectionObj) {
 				joinPoint.target._fields[injectionObj.keyValue] = injectionObj.fieldValue;
@@ -126,23 +142,33 @@ define(['lib/react', 'DamJSMatcher', 'lib/meld'], function(React, DamJSMatcher, 
 		},
 		handleUpdate: function(joinPoint) {
 			var proceed = true;
-			this.matchers.forEach(function(matcher) {
-				if (matcher.matches(joinPoint)) {
-					if (matcher.injectIncoming) {
-						this.handleInjectIncoming(matcher, joinPoint);
+			if ( !this.alreadyExists(joinPoint)) {
+				this.matchers.forEach(function(matcher) {
+					if (matcher.matches(joinPoint)) {
+						if (matcher.injectIncoming) {
+							this.handleInjectIncoming(matcher, joinPoint);
+						}
+						if (matcher.filterIncoming) {
+							matcher.addJoinPoint(this.previous.collection);
+							proceed = false;
+
+						}
+						if (matcher.logIncoming) {
+							console.log("Incoming:", joinPoint.target.getSubject(), joinPoint.target.getFields());
+						}
 					}
-					if (matcher.filterIncoming) {
-						matcher.addJoinPoint(joinPoint);
-						proceed = false;
-					}
-					if (matcher.logIncoming) {
-						console.log("Incoming:", joinPoint.target.getSubject(), joinPoint.target.getFields());
-					}
+				}.bind(this))
+				this.previous.proceed = proceed;
+				if (proceed) {
+					joinPoint.proceed();
 				}
-			}.bind(this))
-			if (proceed) {
-				joinPoint.proceed();
+			} else {
+				this.previous.collection.push(joinPoint)
+				if(this.previous.proceed){
+					joinPoint.proceed();
+				}
 			}
+			
 		},
 		handlePublish: function(joinPoint) {
 			var proceed = true;
