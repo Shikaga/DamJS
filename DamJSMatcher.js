@@ -1,6 +1,7 @@
 define(['lib/react'], function(React) {
 	function DamJSMatcher(matchString) {
 		this.joinPointsCached = [];
+		this.joinPointToCollectionCache = {};
 		this.matchString = matchString;
 		this.reacts = [];
 		this.filterIncoming = false;
@@ -125,19 +126,36 @@ define(['lib/react'], function(React) {
 
 			return false;
 		},
-		addJoinPoint: function(joinPoint) {
+		addJoinPoint: function(joinPointCollection) {
+			const joinPoint = joinPointCollection[0];
 			this.joinPointsCached.push(joinPoint);
+			const key = this.calculateJoinPointKey(joinPoint);
+			this.joinPointToCollectionCache[key] = joinPointCollection
 			joinPoint.matcher = this;
 			this.updateReact();
 		},
 		forwardJoinPoint: function(joinPoint) {
-			joinPoint.proceed();
+			const key = this.calculateJoinPointKey(joinPoint)
+			const joinPointCollection = this.joinPointToCollectionCache[key]
+			if(joinPointCollection){
+				joinPointCollection.forEach((point) => {
+					point.proceed();
+				});
+				console.log("Forwarding :", joinPoint.target.getSubject(), joinPoint.target.getFields());
+			} else {
+				console.log("Warning: no messages when forwarding for ", joinPoint.target.getFields());
+			}
 			this.removeJoinPoint(joinPoint);
 		},
 		removeJoinPoint: function(joinPoint) {
 			var index = this.joinPointsCached.indexOf(joinPoint);
 			this.joinPointsCached.splice(index,1);
+			const key = this.calculateJoinPointKey(joinPoint)
+			this.joinPointToCollectionCache[key] = null;
 			this.updateReact();
+		},
+		calculateJoinPointKey: function(joinPoint) {
+			return joinPoint.target._timeReceived.toString() + joinPoint.target._rttpSequenceNumber
 		}
 	}
 
