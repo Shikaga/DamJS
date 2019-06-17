@@ -138,7 +138,7 @@ define(['lib/react'], function(React) {
 			const key = this.calculateJoinPointKey(joinPoint)
 			const joinPointCollection = this.joinPointToCollectionCache[key]
 			if(joinPointCollection){
-				joinPointCollection.forEach((point) => {
+				joinPointCollection.forEach(function(point){
 					point.proceed();
 				});
 				console.log("Forwarding :", joinPoint.target.getSubject(), joinPoint.target.getFields());
