@@ -2,73 +2,99 @@
 	setTimeout(function () {
 		w = window;
 		d = w.document;
-		var s = d.createElement('script');
-		s.src = damJSDomain + '/lib/require.js';
 
-		if (typeof(exports) !== "undefined") {
-			exportsBak = exports;
-		}
-		exports = undefined
+		var p = d.createElement('script');
+		p.src= 'https://polyfill.io/v3/polyfill.js';
 
-		if (typeof(define) !== "undefined") {
-			defineBak = define;
-		}
-		define = undefined
+		p.onload = loader;
 
-		if (typeof(require) !== "undefined") {
-			requireBak = require;
-		}
-		require = undefined
+		p.onreadystatechange = function() {
+			if (this.readyState === 'complete') {
+				loader();
+			}
+		};
+		d.head.appendChild(p);
 
 
-		s.onload = function() {
-			require.config({
-				baseUrl: damJSDomain
-			});
-			require(['lib/react', 'DamJSElement', 'DamJS'], function(React, DamJSElement, DamJS) {
-				listStyle = {
-					border: "1px solid lightgrey",
-					borderRadius: "5px",
-					padding: "5px",
-					margin: "5px"
-				}
-
-				columnStyle = {
-					width: "300px",
-					height: "160px",
-					padding: "20px",
-					float: "left",
-					backgroundColor: "white",
-					overflowY: "auto"
-				}
-
-				var damJS = new DamJS(module.exports);
-				damJS.addNewMatcher("/");
-				damJS.addNewMatcher("/FX/EURUSD");
-				damJS.addNewMatcher("/FX/GBPUSD");
-				damJS.addNewMatcher("/FX/USDJPY");
-				damJS.addNewMatcher("/PRIVATE");
-				damJS.addNewMatcher("/PRIVATE/FX");
-				damJS.addNewMatcher("/PRIVATE/TRADE/FX");
-				damJS.addNewMatcher("/PRIVATE/TRADE/MM");
-
-				var newElement = document.createElement('div');
-				document.body.appendChild(newElement);
-				React.renderComponent(DamJSElement({damJS: damJS}), newElement);
-
-				try {
-                    exports = exportsBak;
-                    define = defineBak;
-                    require = requireBak;
-				} catch (e) {
-					//do nothing
-				}
-
-			});
-		}
-		d.head.appendChild(s);
 	});
 })();
+
+var loader = function() {
+	var s = d.createElement('script');
+	s.type = 'text/javascript';
+	s.src = damJSDomain + '/lib/require.js';
+
+	if (typeof(exports) !== "undefined") {
+		exportsBak = exports;
+	}
+	exports = undefined;
+
+	if (typeof(define) !== "undefined") {
+		defineBak = define;
+	}
+	define = undefined;
+
+	if (typeof(require) !== "undefined") {
+		requireBak = require;
+	}
+	require = undefined;
+
+
+	s.onload = callBack;
+	s.onreadystatechange = function() {
+		if (this.readyState === 'complete') {
+			callBack();
+		}
+	};
+	d.head.appendChild(s);
+};
+
+
+var callBack = function() {
+	require.config({
+		baseUrl: damJSDomain
+	});
+	require(['lib/react', 'DamJSElement', 'DamJS'], function(React, DamJSElement, DamJS) {
+		listStyle = {
+			border: "1px solid lightgrey",
+			borderRadius: "5px",
+			padding: "5px",
+			margin: "5px"
+		};
+
+		columnStyle = {
+			width: "300px",
+			height: "160px",
+			padding: "20px",
+			float: "left",
+			backgroundColor: "white",
+			overflowY: "auto"
+		};
+
+		var damJS = new DamJS(module.exports);
+		damJS.addNewMatcher("/");
+		damJS.addNewMatcher("/FX/EURUSD");
+		damJS.addNewMatcher("/FX/GBPUSD");
+		damJS.addNewMatcher("/FX/USDJPY");
+		damJS.addNewMatcher("/PRIVATE");
+		damJS.addNewMatcher("/PRIVATE/FX");
+		damJS.addNewMatcher("/PRIVATE/TRADE/FX");
+		damJS.addNewMatcher("/PRIVATE/TRADE/MM");
+
+		var newElement = document.createElement('div');
+		document.body.appendChild(newElement);
+		React.renderComponent(DamJSElement({damJS: damJS}), newElement);
+
+		try {
+			exports = exportsBak;
+			define = defineBak;
+			require = requireBak;
+		} catch (e) {
+			//do nothing
+		}
+
+	});
+};
 
 module = {exports: null};
 
